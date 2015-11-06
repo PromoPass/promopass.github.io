@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">PromoPass</string>
     <string name="action_settings">Settings</string>
+    <string name="action_menu">Main Menu</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_close">Close</string>
 </resources>

@@ -5,37 +5,81 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 
 public class ListNearbyProviders extends AppCompatActivity {
+
+    private Menu optionsMenu;
+    private Toolbar toolbar;
+    private int MENU_CLEAR = Menu.FIRST;
+    private int MENU_CLOSE = Menu.FIRST + 1;
+    private boolean isSelected;
+
+    private ListView nearbyProvidersView;
+    private ArrayAdapter<String> nearbyProviders;
+    private int selectedPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_nearby_providers);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        nearbyProvidersView = (ListView) findViewById(R.id.nearbyProviders_list);
+        nearbyProviders = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+        nearbyProvidersView.setAdapter(nearbyProviders);
+
+        nearbyProviders.add("Hello");
+        nearbyProviders.add("Goodbye");
+
+        nearbyProvidersView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if(!isSelected) {
+                    toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimarySelected));
+                    optionsMenu.add(0, R.id.action_close, MENU_CLOSE, R.string.action_close)
+                            .setIcon(R.drawable.close)
+                            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    optionsMenu.add(0, R.id.action_clear, MENU_CLEAR, R.string.action_clear)
+                            .setIcon(R.drawable.clear)
+                            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    isSelected = true;
+                }
+                return false;
+            }
+        });
 
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_list_nearby_providers, menu);
-        return true;
+        optionsMenu = menu;
+        return super.onCreateOptionsMenu(menu);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        super.onOptionsItemSelected(item);
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_clear:
+                Toast.makeText(this, "Clear", Toast.LENGTH_LONG).show();
+                break;
         }
 
-        return super.onOptionsItemSelected(item);
+        toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        optionsMenu.removeItem(R.id.action_close);
+        optionsMenu.removeItem(R.id.action_clear);
+        isSelected=false;
+
+        return false;
     }
+
+
 }

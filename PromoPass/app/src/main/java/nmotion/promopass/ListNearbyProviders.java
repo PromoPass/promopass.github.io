@@ -1,5 +1,7 @@
 package nmotion.promopass;
 
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -22,11 +24,13 @@ public class ListNearbyProviders extends AppCompatActivity {
     private ListView nearbyProvidersView;
     private ArrayAdapter<String> nearbyProviders;
     private int selectedPosition;
+    private View selectedView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_nearby_providers);
+        setTitle("");
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -36,10 +40,28 @@ public class ListNearbyProviders extends AppCompatActivity {
 
         nearbyProviders.add("Hello");
         nearbyProviders.add("Goodbye");
+        nearbyProviders.add("Hello");
+
+        nearbyProvidersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                removeSelection();
+                Intent intent = new Intent(view.getContext(), ViewAd.class);
+                intent.putExtra("AdID", nearbyProviders.getItem(position));
+                startActivity(intent);
+            }
+        });
 
         nearbyProvidersView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @SuppressWarnings("deprecation")
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if(selectedView != null)
+                    selectedView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+                selectedPosition = position;
+                selectedView = view;
+                view.setBackgroundColor(Color.GRAY);
+
                 if(!isSelected) {
                     toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimarySelected));
                     optionsMenu.add(0, R.id.action_close, MENU_CLOSE, R.string.action_close)
@@ -50,7 +72,7 @@ public class ListNearbyProviders extends AppCompatActivity {
                             .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                     isSelected = true;
                 }
-                return false;
+                return true;
             }
         });
 
@@ -69,16 +91,26 @@ public class ListNearbyProviders extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.action_clear:
-                Toast.makeText(this, "Clear", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Clear "+nearbyProviders.getItem(selectedPosition), Toast.LENGTH_SHORT).show();
+                nearbyProviders.remove(nearbyProviders.getItem(selectedPosition));
                 break;
         }
+
+        removeSelection();
+
+        return false;
+    }
+
+    private void removeSelection(){
 
         toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
         optionsMenu.removeItem(R.id.action_close);
         optionsMenu.removeItem(R.id.action_clear);
-        isSelected=false;
 
-        return false;
+        if(selectedView != null)
+            selectedView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        selectedPosition = -1;
+        isSelected=false;
     }
 
 

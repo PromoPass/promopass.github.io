@@ -62,6 +62,7 @@ public class ListNearbyProviders extends AppCompatActivity {
             //loop through the Json array
             for( int i=0; i<allArrays_JSONARRAY.length();i++) {
                 jsonTemp = allArrays_JSONARRAY.getJSONObject(i);
+                //replace FirstName with the key you want the value of.
                 name = jsonTemp.getString("FirstName");
                 nearbyProviders.add(name);
 

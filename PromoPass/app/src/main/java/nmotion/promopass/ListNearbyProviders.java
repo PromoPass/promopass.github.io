@@ -13,6 +13,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Iterator;
+
 public class ListNearbyProviders extends AppCompatActivity {
 
     private Menu optionsMenu;
@@ -41,6 +47,32 @@ public class ListNearbyProviders extends AppCompatActivity {
         nearbyProviders.add("Hello");
         nearbyProviders.add("Goodbye");
         nearbyProviders.add("Hello");
+
+        String result = "";
+        try {
+            //The JSON Object holds a JSON Array that holds many JSon objects.
+            // So we need to first get the Json Array and then get each json object individually.
+            JSONObject json = new JSONObject("{\"Provider\": [ { \"ProviderID\": \"324392432nkfde\", \"FirstName\": \"Jeffrey\", \"LastName\": \"Olsen\", \"Email\": \"jolsen342@gmail.com\" }, { \"ProviderID\": \"o23jkhr23234\", \"FirstName\": \"Jessica\", \"LastName\": \"Covington\", \"Email\": \"sanspei@gmail.com\" }, { \"ProviderID\": \"YIk_6QHvRUKGxXTbSOu7pA\", \"FirstName\": \"Fenda\", \"LastName\": \"Troung\", \"Email\": \"fenda.tr@gmail.com\" } ]}");
+            String allArrays = json.getString("Provider");
+
+            JSONArray allArrays_JSONARRAY = new JSONArray(allArrays);
+             
+            JSONObject jsonTemp = null;
+            String name = "";
+            //loop through the Json array
+            for( int i=0; i<allArrays_JSONARRAY.length();i++) {
+                jsonTemp = allArrays_JSONARRAY.getJSONObject(i);
+                name = jsonTemp.getString("FirstName");
+                nearbyProviders.add(name);
+
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
 
         nearbyProvidersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

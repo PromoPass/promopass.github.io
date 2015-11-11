@@ -9,6 +9,9 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class ViewAd extends AppCompatActivity {
 
     private int MENU_CLEAR = Menu.FIRST;
@@ -24,7 +27,14 @@ public class ViewAd extends AppCompatActivity {
         test = (TextView) findViewById(R.id.textView);
         test.setText(getIntent().getStringExtra("AdID"));
 
-        // get Ad from AdID
+        String adID = "20";
+        JSONObject json = null;
+        try {
+            json = new JSONObject("{\"Ad\": [ { \"ProviderID\": \"324392432nkfde\", \"FirstName\": \"Jeffrey\", \"LastName\": \"Olsen\", \"Email\": \"jolsen342@gmail.com\" }, { \"ProviderID\": \"o23jkhr23234\", \"FirstName\": \"Jessica\", \"LastName\": \"Covington\", \"Email\": \"sanspei@gmail.com\" }, { \"ProviderID\": \"YIk_6QHvRUKGxXTbSOu7pA\", \"FirstName\": \"Fenda\", \"LastName\": \"Troung\", \"Email\": \"fenda.tr@gmail.com\" } ]}");
+            String allArrays = json.getString("Provider");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
     }
 

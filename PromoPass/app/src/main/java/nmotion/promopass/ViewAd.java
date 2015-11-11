@@ -9,13 +9,13 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 public class ViewAd extends AppCompatActivity {
 
     private int MENU_CLEAR = Menu.FIRST;
-    private TextView test;
+    private String AdID;
+    private String ReceivedAdID;
+    private String BusinessID;
+    private String BusinessName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,17 +24,16 @@ public class ViewAd extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        test = (TextView) findViewById(R.id.textView);
-        test.setText(getIntent().getStringExtra("AdID"));
+        AdID = getIntent().getStringExtra("AdID");
+        ReceivedAdID = getIntent().getStringExtra("ReceivedAdID");  // used for save and clear ads
+        BusinessID = getIntent().getStringExtra("BusinessID");      // used for favorite and block providers
+        BusinessName = getIntent().getStringExtra("BusinessName");
 
-        String adID = "20";
-        JSONObject json = null;
-        try {
-            json = new JSONObject("{\"Ad\": [ { \"ProviderID\": \"324392432nkfde\", \"FirstName\": \"Jeffrey\", \"LastName\": \"Olsen\", \"Email\": \"jolsen342@gmail.com\" }, { \"ProviderID\": \"o23jkhr23234\", \"FirstName\": \"Jessica\", \"LastName\": \"Covington\", \"Email\": \"sanspei@gmail.com\" }, { \"ProviderID\": \"YIk_6QHvRUKGxXTbSOu7pA\", \"FirstName\": \"Fenda\", \"LastName\": \"Troung\", \"Email\": \"fenda.tr@gmail.com\" } ]}");
-            String allArrays = json.getString("Provider");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        TextView businessName_txt = (TextView) findViewById(R.id.businessName);
+        businessName_txt.setText(BusinessName);
+
+        // get Ad Information by AdID
+        // set Title and Writing
 
     }
 
@@ -54,8 +53,9 @@ public class ViewAd extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_clear:
                 // set Received Ad as cleared
-                Toast.makeText(this, test.getText() + ": This ad has been cleared.", Toast.LENGTH_LONG).show();
-                startActivity(new Intent(this, ListNearbyProviders.class));
+                Reader.update("http://fendatr.com/api/v1/ad/" + ReceivedAdID + "/clear");
+                Toast.makeText(this, BusinessName + ": This ad has been deleted.", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(this, ListNearbyProviders.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 break;
         }
 

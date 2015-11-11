@@ -3,7 +3,7 @@ package nmotion.promopass;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.provider.ContactsContract;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -18,9 +18,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Iterator;
-import java.util.concurrent.ExecutionException;
-
 public class ListNearbyProviders extends AppCompatActivity {
 
     private Menu optionsMenu;
@@ -30,7 +27,7 @@ public class ListNearbyProviders extends AppCompatActivity {
     private boolean isSelected;
 
     private ListView nearbyProvidersView;
-    private ArrayAdapter<String> nearbyProviders;
+    private ArrayAdapter<ReceivedAd> nearbyProviders;
     private int selectedPosition;
     private View selectedView;
 
@@ -43,81 +40,70 @@ public class ListNearbyProviders extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         nearbyProvidersView = (ListView) findViewById(R.id.nearbyProviders_list);
-        nearbyProviders = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+        nearbyProviders = new ArrayAdapter<ReceivedAd>(this, android.R.layout.simple_list_item_1);
         nearbyProvidersView.setAdapter(nearbyProviders);
 
-        DeviceIdentifier di = new DeviceIdentifier();
-        String consumerID = di.id(this);
+        String consumerID = DeviceIdentifier.id(this);
 
-        DatabaseReader dr1 = new DatabaseReader();
-        dr1.execute("http://fendatr.com/api/v1/consumer/" + consumerID + "/received");
+        JSONArray receivedAds = Reader.getResults("http://fendatr.com/api/v1/consumer/" + consumerID + "/received");
 
-        JSONArray receivedAds;
         try {
-
-            receivedAds = dr1.get();
-
             JSONObject jsonTemp;
-            for( int i=0; i<receivedAds.length();i++) {
+            for (int i = 0; i < receivedAds.length(); i++) {
                 jsonTemp = receivedAds.getJSONObject(i);
                 String businessID = jsonTemp.getString("BusinessID");
 
-                DatabaseReader dr2 = new DatabaseReader();
-                dr2.execute("http://fendatr.com/api/v1/business/" + businessID + "/name");
-
-                JSONArray allArrays_JSONARRAY = dr2.get();
+                JSONArray allArrays_JSONARRAY = Reader.getResults("http://fendatr.com/api/v1/business/" + businessID + "/name");
 
                 JSONObject jsonTemp2 = allArrays_JSONARRAY.getJSONObject(i);
-                String name = jsonTemp2.getString("Name");
-                // add class and override toString()
-                nearbyProviders.add(name);
+
+                ReceivedAd receivedAd = new ReceivedAd(jsonTemp.getString("ReceivedAdID"),
+                        jsonTemp.getString("AdID"),
+                        businessID,
+                        jsonTemp2.getString("Name"));
+                nearbyProviders.add(receivedAd);
             }
         } catch (JSONException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
         }
 
-        if(nearbyProviders.getCount() == 0)
-            nearbyProviders.add("No businesses in your area.");
-        else
-        {
-            nearbyProvidersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    removeSelection();
-                    Intent intent = new Intent(view.getContext(), ViewAd.class);
-                    intent.putExtra("AdID", nearbyProviders.getItem(position));
-                    startActivity(intent);
-                }
-            });
+        nearbyProvidersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                removeSelection();
+                Intent intent = new Intent(view.getContext(), ViewAd.class);
+                intent.putExtra("ReceivedAdID", nearbyProviders.getItem(position).getReceivedAdID());
+                intent.putExtra("AdID", nearbyProviders.getItem(position).getAdID());
+                intent.putExtra("BusinessID", nearbyProviders.getItem(position).getBusinessID());
+                intent.putExtra("BusinessName", nearbyProviders.getItem(position).toString());
+                startActivity(intent);
+            }
+        });
 
-            nearbyProvidersView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                @SuppressWarnings("deprecation")
-                @Override
-                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                    if(selectedView != null)
-                        selectedView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-                    selectedPosition = position;
-                    selectedView = view;
-                    view.setBackgroundColor(Color.GRAY);
+        nearbyProvidersView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if (selectedView != null)
+                    selectedView.setBackgroundColor(ContextCompat.getColor(selectedView.getContext(), android.R.color.transparent));
+                selectedPosition = position;
+                selectedView = view;
+                view.setBackgroundColor(Color.GRAY);
 
-                    if(!isSelected) {
-                        toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimarySelected));
-                        optionsMenu.add(0, R.id.action_close, MENU_CLOSE, R.string.action_close)
-                                .setIcon(R.drawable.close)
-                                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                        optionsMenu.add(0, R.id.action_clear, MENU_CLEAR, R.string.action_clear)
-                                .setIcon(R.drawable.clear)
-                                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                        isSelected = true;
-                    }
-                    return true;
+                if (!isSelected) {
+                    toolbar.setBackgroundColor(ContextCompat.getColor(toolbar.getContext(), R.color.colorPrimarySelected));
+                    optionsMenu.add(0, R.id.action_close, MENU_CLOSE, R.string.action_close)
+                            .setIcon(R.drawable.close)
+                            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    optionsMenu.add(0, R.id.action_clear, MENU_CLEAR, R.string.action_clear)
+                            .setIcon(R.drawable.clear)
+                            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    isSelected = true;
                 }
-            });
-        }
+                return true;
+            }
+        });
+
+        nearbyProvidersView.setEmptyView(findViewById(R.id.empty));
 
     }
 
@@ -127,15 +113,19 @@ public class ListNearbyProviders extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
 
         switch (item.getItemId()) {
             case R.id.action_clear:
-                Toast.makeText(this, nearbyProviders.getItem(selectedPosition) + ": This ad has been cleared.", Toast.LENGTH_LONG).show();
-                nearbyProviders.remove(nearbyProviders.getItem(selectedPosition));
+                ReceivedAd selectedAd = nearbyProviders.getItem(selectedPosition);
+
+                Reader.update("http://fendatr.com/api/v1/ad/" + selectedAd.getReceivedAdID() + "/clear");
+                nearbyProviders.remove(selectedAd);
+
+                Toast.makeText(this, selectedAd.toString() + ": This ad has been deleted.",
+                        Toast.LENGTH_LONG).show();
                 break;
         }
 
@@ -146,12 +136,13 @@ public class ListNearbyProviders extends AppCompatActivity {
 
     private void removeSelection(){
 
-        toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+
+        toolbar.setBackgroundColor(ContextCompat.getColor(toolbar.getContext(), R.color.colorPrimary));
         optionsMenu.removeItem(R.id.action_close);
         optionsMenu.removeItem(R.id.action_clear);
 
         if(selectedView != null)
-            selectedView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+            selectedView.setBackgroundColor(ContextCompat.getColor(selectedView.getContext(), android.R.color.transparent));
         selectedPosition = -1;
         isSelected=false;
     }

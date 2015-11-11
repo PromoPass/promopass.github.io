@@ -2,7 +2,6 @@ package nmotion.promopass;
 
 import android.content.Context;
 import android.provider.Settings;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,7 +12,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Anna on 10/28/2015.
@@ -38,10 +36,15 @@ public class DeviceIdentifier {
         return sID;
     }
 
+    /*
+    // used for debugging purposes
+
     public static void delete(Context context){
         File installation = new File(context.getFilesDir(), INSTALLATION);
         installation.delete();
     }
+
+     */
 
     private static String readInstallationFile(File installation) throws IOException {
         RandomAccessFile f = new RandomAccessFile(installation, "r");
@@ -50,19 +53,12 @@ public class DeviceIdentifier {
         f.close();
         String deviceID = new String(bytes);
 
-        // grab ConsumerID from server
-        DatabaseReader dr = new DatabaseReader();
-        dr.execute("http://fendatr.com/api/v1/device/"+deviceID+"/consumer/consumer-id");
-        String consumerID = "";
+        JSONArray array = Reader.getResults("http://fendatr.com/api/v1/device/" + deviceID + "/consumer/consumer-id");
 
+        String consumerID = "";
         try {
-            JSONArray array = dr.get();
             JSONObject jsonTemp = array.getJSONObject(0);
             consumerID = jsonTemp.getString("ConsumerID");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -81,15 +77,6 @@ public class DeviceIdentifier {
         out.write(deviceID.getBytes());
         out.close();
 
-        DatabaseReader dr = new DatabaseReader();
-        dr.execute("http://fendatr.com/api/v1/consumer", "{\"DeviceID\" : \"" + deviceID + "\"}");
-
-        try {
-            dr.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+        Reader.insert("http://fendatr.com/api/v1/consumer", "{\"DeviceID\" : \"" + deviceID + "\"}");
     }
 }

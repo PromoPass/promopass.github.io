@@ -15,7 +15,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Iterator;
 
-class DatabaseReader extends AsyncTask<String, Void, JSONArray> {
+class Connection extends AsyncTask<String, Void, JSONArray> {
 
 	OkHttpClient client = new OkHttpClient();
 

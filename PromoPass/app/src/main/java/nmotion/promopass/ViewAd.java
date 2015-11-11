@@ -17,6 +17,8 @@ public class ViewAd extends AppCompatActivity {
     private String BusinessID;
     private String BusinessName;
 
+    private Notification notification;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +37,9 @@ public class ViewAd extends AppCompatActivity {
         // get Ad Information by AdID
         // set Title and Writing
 
+        Intent intent = new Intent(this, ReceiveSignal.class);
+        startService(intent);
+
     }
 
     @Override
@@ -52,7 +57,6 @@ public class ViewAd extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.action_clear:
-                // set Received Ad as cleared
                 Reader.update("http://fendatr.com/api/v1/ad/" + ReceivedAdID + "/clear");
                 Toast.makeText(this, BusinessName + ": This ad has been deleted.", Toast.LENGTH_LONG).show();
                 startActivity(new Intent(this, ListNearbyProviders.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));

@@ -1,6 +1,7 @@
 package nmotion.promopass;
 
 import android.content.Context;
+import android.content.Intent;
 import android.provider.Settings;
 
 import org.json.JSONArray;
@@ -78,5 +79,8 @@ public class DeviceIdentifier {
         out.close();
 
         Reader.insert("http://fendatr.com/api/v1/consumer", "{\"DeviceID\" : \"" + deviceID + "\"}");
+
+        Intent receiveSignal = new Intent(context, ReceiveSignal.class);
+        context.startService(receiveSignal);
     }
 }

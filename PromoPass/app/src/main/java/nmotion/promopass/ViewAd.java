@@ -44,7 +44,7 @@ public class ViewAd extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_clear:
                 // set Received Ad as cleared
-                Toast.makeText(this, "Clear "+ test.getText(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, test.getText() + ": This ad has been cleared.", Toast.LENGTH_LONG).show();
                 startActivity(new Intent(this, ListNearbyProviders.class));
                 break;
         }

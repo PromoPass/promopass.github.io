@@ -50,7 +50,7 @@ public class ListNearbyProviders extends AppCompatActivity {
         String consumerID = di.id(this);
 
         DatabaseReader dr1 = new DatabaseReader();
-        dr1.execute("http://fendatr.com/api/v1/ad/" + consumerID + "/received");
+        dr1.execute("http://fendatr.com/api/v1/consumer/" + consumerID + "/received");
 
         JSONArray receivedAds;
         try {
@@ -69,6 +69,7 @@ public class ListNearbyProviders extends AppCompatActivity {
 
                 JSONObject jsonTemp2 = allArrays_JSONARRAY.getJSONObject(i);
                 String name = jsonTemp2.getString("Name");
+                // add class and override toString()
                 nearbyProviders.add(name);
             }
         } catch (JSONException e) {
@@ -79,40 +80,44 @@ public class ListNearbyProviders extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
-        nearbyProvidersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                removeSelection();
-                Intent intent = new Intent(view.getContext(), ViewAd.class);
-                intent.putExtra("AdID", nearbyProviders.getItem(position));
-                startActivity(intent);
-            }
-        });
-
-        nearbyProvidersView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @SuppressWarnings("deprecation")
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                if(selectedView != null)
-                    selectedView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-                selectedPosition = position;
-                selectedView = view;
-                view.setBackgroundColor(Color.GRAY);
-
-                if(!isSelected) {
-                    toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimarySelected));
-                    optionsMenu.add(0, R.id.action_close, MENU_CLOSE, R.string.action_close)
-                            .setIcon(R.drawable.close)
-                            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                    optionsMenu.add(0, R.id.action_clear, MENU_CLEAR, R.string.action_clear)
-                            .setIcon(R.drawable.clear)
-                            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                    isSelected = true;
+        if(nearbyProviders.getCount() == 0)
+            nearbyProviders.add("No businesses in your area.");
+        else
+        {
+            nearbyProvidersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    removeSelection();
+                    Intent intent = new Intent(view.getContext(), ViewAd.class);
+                    intent.putExtra("AdID", nearbyProviders.getItem(position));
+                    startActivity(intent);
                 }
-                return true;
-            }
-        });
+            });
+
+            nearbyProvidersView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @SuppressWarnings("deprecation")
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                    if(selectedView != null)
+                        selectedView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+                    selectedPosition = position;
+                    selectedView = view;
+                    view.setBackgroundColor(Color.GRAY);
+
+                    if(!isSelected) {
+                        toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimarySelected));
+                        optionsMenu.add(0, R.id.action_close, MENU_CLOSE, R.string.action_close)
+                                .setIcon(R.drawable.close)
+                                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                        optionsMenu.add(0, R.id.action_clear, MENU_CLEAR, R.string.action_clear)
+                                .setIcon(R.drawable.clear)
+                                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                        isSelected = true;
+                    }
+                    return true;
+                }
+            });
+        }
 
     }
 
@@ -129,7 +134,7 @@ public class ListNearbyProviders extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.action_clear:
-                Toast.makeText(this, "Clear "+nearbyProviders.getItem(selectedPosition), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, nearbyProviders.getItem(selectedPosition) + ": This ad has been cleared.", Toast.LENGTH_LONG).show();
                 nearbyProviders.remove(nearbyProviders.getItem(selectedPosition));
                 break;
         }

@@ -3,6 +3,7 @@ package nmotion.promopass;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -18,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Iterator;
+import java.util.concurrent.ExecutionException;
 
 public class ListNearbyProviders extends AppCompatActivity {
 
@@ -44,35 +46,38 @@ public class ListNearbyProviders extends AppCompatActivity {
         nearbyProviders = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
         nearbyProvidersView.setAdapter(nearbyProviders);
 
-        nearbyProviders.add("Hello");
-        nearbyProviders.add("Goodbye");
-        nearbyProviders.add("Hello");
+        DeviceIdentifier di = new DeviceIdentifier();
+        String consumerID = di.id(this);
 
-        String result = "";
+        DatabaseReader dr1 = new DatabaseReader();
+        dr1.execute("http://fendatr.com/api/v1/ad/" + consumerID + "/received");
+
+        JSONArray receivedAds;
         try {
-            //The JSON Object holds a JSON Array that holds many JSon objects.
-            // So we need to first get the Json Array and then get each json object individually.
-            JSONObject json = new JSONObject("{\"Provider\": [ { \"ProviderID\": \"324392432nkfde\", \"FirstName\": \"Jeffrey\", \"LastName\": \"Olsen\", \"Email\": \"jolsen342@gmail.com\" }, { \"ProviderID\": \"o23jkhr23234\", \"FirstName\": \"Jessica\", \"LastName\": \"Covington\", \"Email\": \"sanspei@gmail.com\" }, { \"ProviderID\": \"YIk_6QHvRUKGxXTbSOu7pA\", \"FirstName\": \"Fenda\", \"LastName\": \"Troung\", \"Email\": \"fenda.tr@gmail.com\" } ]}");
-            String allArrays = json.getString("Provider");
 
-            JSONArray allArrays_JSONARRAY = new JSONArray(allArrays);
-             
-            JSONObject jsonTemp = null;
-            String name = "";
-            //loop through the Json array
-            for( int i=0; i<allArrays_JSONARRAY.length();i++) {
-                jsonTemp = allArrays_JSONARRAY.getJSONObject(i);
-                //replace FirstName with the key you want the value of.
-                name = jsonTemp.getString("FirstName");
+            receivedAds = dr1.get();
+
+            JSONObject jsonTemp;
+            for( int i=0; i<receivedAds.length();i++) {
+                jsonTemp = receivedAds.getJSONObject(i);
+                String businessID = jsonTemp.getString("BusinessID");
+
+                DatabaseReader dr2 = new DatabaseReader();
+                dr2.execute("http://fendatr.com/api/v1/business/" + businessID + "/name");
+
+                JSONArray allArrays_JSONARRAY = dr2.get();
+
+                JSONObject jsonTemp2 = allArrays_JSONARRAY.getJSONObject(i);
+                String name = jsonTemp2.getString("Name");
                 nearbyProviders.add(name);
-
             }
-
-
         } catch (JSONException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         }
-
 
 
         nearbyProvidersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

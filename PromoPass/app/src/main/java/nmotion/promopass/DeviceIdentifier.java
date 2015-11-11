@@ -4,11 +4,16 @@ import android.content.Context;
 import android.provider.Settings;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Anna on 10/28/2015.
@@ -29,19 +34,13 @@ public class DeviceIdentifier {
                 throw new RuntimeException(e);
             }
         }
+
         return sID;
     }
 
-    public synchronized static void delete(Context context) {
+    public static void delete(Context context){
         File installation = new File(context.getFilesDir(), INSTALLATION);
-        try {
-            if (installation.exists()) {
-                boolean success = installation.delete();
-                Toast.makeText(context, success ? "success" : "fail", Toast.LENGTH_LONG).show();
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        installation.delete();
     }
 
     private static String readInstallationFile(File installation) throws IOException {
@@ -50,8 +49,25 @@ public class DeviceIdentifier {
         f.readFully(bytes);
         f.close();
         String deviceID = new String(bytes);
+
         // grab ConsumerID from server
-        return deviceID;
+        DatabaseReader dr = new DatabaseReader();
+        dr.execute("http://fendatr.com/api/v1/device/"+deviceID+"/consumer/consumer-id");
+        String consumerID = "";
+
+        try {
+            JSONArray array = dr.get();
+            JSONObject jsonTemp = array.getJSONObject(0);
+            consumerID = jsonTemp.getString("ConsumerID");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return consumerID;
     }
 
     private static void writeInstallationFile(Context context, File installation) throws IOException {
@@ -65,12 +81,15 @@ public class DeviceIdentifier {
         out.write(deviceID.getBytes());
         out.close();
 
-        // generate unique consumer id
-        String consumerID = UUID.randomUUID().toString().replace("-", "");
-        consumerID = consumerID.substring(16, consumerID.length());
+        DatabaseReader dr = new DatabaseReader();
+        dr.execute("http://fendatr.com/api/v1/consumer", "{\"DeviceID\" : \"" + deviceID + "\"}");
 
-        // while consumerID is not unique, generate new one
-        // store consumer
-
+        try {
+            dr.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 }

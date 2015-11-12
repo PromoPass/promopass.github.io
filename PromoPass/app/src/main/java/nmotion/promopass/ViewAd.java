@@ -6,8 +6,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class ViewAd extends AppCompatActivity {
 
@@ -16,6 +21,8 @@ public class ViewAd extends AppCompatActivity {
     private String ReceivedAdID;
     private String BusinessID;
     private String BusinessName;
+    private  String Description;
+    private String Title;
 
     private Notification notification;
 
@@ -30,9 +37,33 @@ public class ViewAd extends AppCompatActivity {
         ReceivedAdID = getIntent().getStringExtra("ReceivedAdID");  // used for save and clear ads
         BusinessID = getIntent().getStringExtra("BusinessID");      // used for favorite and block providers
         BusinessName = getIntent().getStringExtra("BusinessName");
+        //Description = get.Intent().getStringExtra();
 
         TextView businessName_txt = (TextView) findViewById(R.id.businessName);
         businessName_txt.setText(BusinessName);
+
+        Reader rd = new Reader();
+        JSONArray jsonArray = rd.getResults("http://fendatr.com/api/v1/ad/" + AdID);
+
+        JSONObject jsonTemp;
+        try {
+            jsonTemp = jsonArray.getJSONObject(0);
+            Description = jsonTemp.getString("Writing");
+            String temp_title = jsonTemp.getString("Title");
+            TextView businessTitle_txt = (TextView) findViewById(R.id.title);
+            if(temp_title =="") {
+                businessTitle_txt.setVisibility(View.INVISIBLE);
+            }
+            else {
+                Title = jsonTemp.getString("Title");
+                businessTitle_txt.setText(Title);
+            }
+        } catch (JSONException e) {
+
+        }
+
+        TextView description_txt = (TextView) findViewById(R.id.description);
+        description_txt.setText(Description);
 
         // get Ad Information by AdID
         // set Title and Writing

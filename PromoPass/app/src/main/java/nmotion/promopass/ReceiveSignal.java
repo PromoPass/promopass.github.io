@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.widget.Toast;
 
 import com.gimbal.android.BeaconEventListener;
 import com.gimbal.android.BeaconManager;
@@ -18,6 +17,7 @@ public class ReceiveSignal extends Service {
 
     private BeaconManager beaconManager;
     private BeaconEventListener beaconEventListener;
+    private Notification notification = null;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -28,7 +28,7 @@ public class ReceiveSignal extends Service {
     @Override
     public void onCreate() {
 
-        Gimbal.setApiKey(this.getApplication(), "9c5082b4-ebd6-48bc-86f3-78fcf178c9d1");
+        Gimbal.setApiKey(this.getApplication(), "0be38462-57de-40d9-8f24-451f4d4c2b5c");
 
         final Context self = this;
 
@@ -37,7 +37,12 @@ public class ReceiveSignal extends Service {
             public void onBeaconSighting(BeaconSighting beaconSighting) {
                 super.onBeaconSighting(beaconSighting);
                 String factoryID = beaconSighting.getBeacon().getIdentifier();
-                Toast.makeText(self, factoryID, Toast.LENGTH_SHORT).show();
+                if(notification == null){
+                    notification = new Notification(self, factoryID);
+                }
+                else{
+                    notification.addBusiness(factoryID);
+                }
             }
         };
 
@@ -47,7 +52,6 @@ public class ReceiveSignal extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(this, "Starting", Toast.LENGTH_SHORT).show();
         //Register the listener here.
         beaconManager.startListening();
         return START_STICKY;

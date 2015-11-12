@@ -66,6 +66,8 @@ public class Notification {
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         mNotificationManager.notify(0, mBuilder.build());
+
+
     }
 
 }

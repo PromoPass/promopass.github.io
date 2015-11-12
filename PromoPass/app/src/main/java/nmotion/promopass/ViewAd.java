@@ -65,12 +65,6 @@ public class ViewAd extends AppCompatActivity {
         TextView description_txt = (TextView) findViewById(R.id.description);
         description_txt.setText(Description);
 
-        // get Ad Information by AdID
-        // set Title and Writing
-
-        Intent intent = new Intent(this, ReceiveSignal.class);
-        startService(intent);
-
     }
 
     @Override

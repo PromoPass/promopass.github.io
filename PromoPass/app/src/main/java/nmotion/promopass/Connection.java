@@ -40,7 +40,8 @@ class Connection extends AsyncTask<String, Void, JSONArray> {
 		try {
 			response = client.newCall(request).execute();
 
-            if(urls.length == 2) return null;
+            if(urls.length == 2)
+				return null;
 
             String jsonString = response.body().string();
 			JSONObject json = new JSONObject(jsonString);  //DB obj

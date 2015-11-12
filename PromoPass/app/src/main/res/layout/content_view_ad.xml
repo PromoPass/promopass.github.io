@@ -23,7 +23,7 @@
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:adjustViewBounds="false"
-        android:src="#5dffcc"
+        android:src="@drawable/promopass"
         android:layout_gravity="center_vertical"
         android:layout_below="@+id/businessName"
         android:layout_centerHorizontal="true" />

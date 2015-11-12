@@ -55,13 +55,15 @@ public class ListNearbyProviders extends AppCompatActivity {
 
                 JSONArray allArrays_JSONARRAY = Reader.getResults("http://fendatr.com/api/v1/business/" + businessID + "/name");
 
-                JSONObject jsonTemp2 = allArrays_JSONARRAY.getJSONObject(i);
+                JSONObject jsonTemp2 = allArrays_JSONARRAY.getJSONObject(0);
 
                 ReceivedAd receivedAd = new ReceivedAd(jsonTemp.getString("ReceivedAdID"),
                         jsonTemp.getString("AdID"),
                         businessID,
                         jsonTemp2.getString("Name"));
                 nearbyProviders.add(receivedAd);
+
+                seeReceivedAd(receivedAd.getReceivedAdID());
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -121,7 +123,7 @@ public class ListNearbyProviders extends AppCompatActivity {
             case R.id.action_clear:
                 ReceivedAd selectedAd = nearbyProviders.getItem(selectedPosition);
 
-                Reader.update("http://fendatr.com/api/v1/ad/" + selectedAd.getReceivedAdID() + "/clear");
+                Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/clear");
                 nearbyProviders.remove(selectedAd);
 
                 Toast.makeText(this, selectedAd.toString() + ": This ad has been deleted.",
@@ -132,6 +134,10 @@ public class ListNearbyProviders extends AppCompatActivity {
         removeSelection();
 
         return false;
+    }
+
+    private void seeReceivedAd(String receivedAdID){
+        Reader.update("http://fendatr.com/api/v1/received/ad/"+receivedAdID+"/see");
     }
 
     private void removeSelection(){

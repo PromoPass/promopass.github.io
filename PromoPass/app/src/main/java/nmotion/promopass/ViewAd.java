@@ -42,8 +42,7 @@ public class ViewAd extends AppCompatActivity {
         TextView businessName_txt = (TextView) findViewById(R.id.businessName);
         businessName_txt.setText(BusinessName);
 
-        Reader rd = new Reader();
-        JSONArray jsonArray = rd.getResults("http://fendatr.com/api/v1/ad/" + AdID);
+        JSONArray jsonArray = Reader.getResults("http://fendatr.com/api/v1/ad/" + AdID);
 
         JSONObject jsonTemp;
         try {
@@ -82,7 +81,7 @@ public class ViewAd extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.action_clear:
-                Reader.update("http://fendatr.com/api/v1/ad/" + ReceivedAdID + "/clear");
+                Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/clear");
                 Toast.makeText(this, BusinessName + ": This ad has been deleted.", Toast.LENGTH_LONG).show();
                 startActivity(new Intent(this, ListNearbyProviders.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 break;

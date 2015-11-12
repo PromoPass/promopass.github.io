@@ -38,11 +38,9 @@ public class ReceiveSignal extends Service {
                 super.onBeaconSighting(beaconSighting);
                 String factoryID = beaconSighting.getBeacon().getIdentifier();
                 if(notification == null){
-                    notification = new Notification(self, factoryID);
+                    notification = new Notification(self);
                 }
-                else{
-                    notification.addBusiness(factoryID);
-                }
+                notification.addBusiness(factoryID);
             }
         };
 

@@ -26,8 +26,11 @@ import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
 public class ViewAd extends AppCompatActivity {
+    private int MENU_FAVORITE = Menu.FIRST;
+    private int MENU_BLOCK = Menu.FIRST + 1;
+    private int MENU_SAVE = Menu.FIRST + 2;
+    private int MENU_CLEAR = Menu.FIRST + 3;
 
-    private int MENU_CLEAR = Menu.FIRST;
     private String AdID;
     private String ReceivedAdID;
     private String BusinessID;
@@ -51,7 +54,7 @@ public class ViewAd extends AppCompatActivity {
 
 
 
-        AdID = "23";
+        //AdID = "23";
         JSONArray jsonArray = Reader.getResults("http://fendatr.com/api/v1/ad/" + AdID);
 
         JSONObject jsonTemp;
@@ -91,6 +94,15 @@ public class ViewAd extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, R.id.action_favorite, MENU_FAVORITE, R.string.action_favorite)
+                .setIcon(R.drawable.favorite)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.add(0, R.id.action_block, MENU_BLOCK, R.string.action_block)
+                .setIcon(R.drawable.block)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.add(0, R.id.action_save, MENU_SAVE, R.string.action_save)
+                .setIcon(R.drawable.save)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         menu.add(0, R.id.action_clear, MENU_CLEAR, R.string.action_clear)
                 .setIcon(R.drawable.clear)
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -103,6 +115,10 @@ public class ViewAd extends AppCompatActivity {
         super.onOptionsItemSelected(item);
 
         switch (item.getItemId()) {
+            case R.id.action_favorite:
+                Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/favorite");
+                Toast.makeText(this, BusinessName + ": This ad has been favorited.", Toast.LENGTH_LONG).show();
+                break;
             case R.id.action_clear:
                 Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/clear");
                 Toast.makeText(this, BusinessName + ": This ad has been deleted.", Toast.LENGTH_LONG).show();

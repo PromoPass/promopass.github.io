@@ -1,18 +1,29 @@
 package nmotion.promopass;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 public class ViewAd extends AppCompatActivity {
 
@@ -23,7 +34,7 @@ public class ViewAd extends AppCompatActivity {
     private String BusinessName;
     private  String Description;
     private String Title;
-
+    private Bitmap Pic;
     private Notification notification;
 
     @Override
@@ -37,11 +48,10 @@ public class ViewAd extends AppCompatActivity {
         ReceivedAdID = getIntent().getStringExtra("ReceivedAdID");  // used for save and clear ads
         BusinessID = getIntent().getStringExtra("BusinessID");      // used for favorite and block providers
         BusinessName = getIntent().getStringExtra("BusinessName");
-        //Description = get.Intent().getStringExtra();
 
-        TextView businessName_txt = (TextView) findViewById(R.id.businessName);
-        businessName_txt.setText(BusinessName);
 
+
+        AdID = "23";
         JSONArray jsonArray = Reader.getResults("http://fendatr.com/api/v1/ad/" + AdID);
 
         JSONObject jsonTemp;
@@ -50,7 +60,14 @@ public class ViewAd extends AppCompatActivity {
             Description = jsonTemp.getString("Writing");
             String temp_title = jsonTemp.getString("Title");
             TextView businessTitle_txt = (TextView) findViewById(R.id.title);
-            if(temp_title =="") {
+
+            String temp_picURL = "http://fendatr.com/ULf1A14.jpg";
+            ImageView picURL = (ImageView) findViewById(R.id.pic);
+            ImageStreamer st = new ImageStreamer(picURL);
+            st.execute(temp_picURL);
+
+
+           if(temp_title =="") {
                 businessTitle_txt.setVisibility(View.INVISIBLE);
             }
             else {
@@ -60,6 +77,12 @@ public class ViewAd extends AppCompatActivity {
         } catch (JSONException e) {
 
         }
+
+
+
+
+        TextView businessName_txt = (TextView) findViewById(R.id.businessName);
+        businessName_txt.setText(BusinessName);
 
         TextView description_txt = (TextView) findViewById(R.id.description);
         description_txt.setText(Description);

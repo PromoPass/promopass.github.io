@@ -119,6 +119,16 @@ public class ViewAd extends AppCompatActivity {
                 Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/favorite");
                 Toast.makeText(this, BusinessName + ": This ad has been favorited.", Toast.LENGTH_LONG).show();
                 break;
+            case R.id.action_block:
+                Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/block");
+                Toast.makeText(this, BusinessName + ": This provider has been blocked.", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(this, ListNearbyProviders.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                break;
+            case R.id.action_save:
+                Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/save");
+                Toast.makeText(this, BusinessName + ": This ad has been saved.", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(this, ListNearbyProviders.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                break;
             case R.id.action_clear:
                 Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/clear");
                 Toast.makeText(this, BusinessName + ": This ad has been deleted.", Toast.LENGTH_LONG).show();

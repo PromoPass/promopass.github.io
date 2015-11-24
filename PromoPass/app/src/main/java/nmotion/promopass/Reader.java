@@ -1,5 +1,7 @@
 package nmotion.promopass;
 
+import android.graphics.Bitmap;
+
 import org.json.JSONArray;
 
 import java.util.concurrent.ExecutionException;
@@ -7,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Created by Anna on 11/10/2015.
  */
+
 public class Reader {
 
     public static JSONArray getResults(String url){
@@ -51,5 +54,6 @@ public class Reader {
             e.printStackTrace();
         }
     }
+
 
 }

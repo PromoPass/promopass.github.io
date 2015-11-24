@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <item name="action_favorite" type="id">action_favorite</item>
+    <item name="action_block" type="id">action_block</item>
+    <item name="action_save" type="id">action_save</item>
     <item name="action_clear" type="id">action_clear</item>
     <item name="action_close" type="id" />
 </resources>

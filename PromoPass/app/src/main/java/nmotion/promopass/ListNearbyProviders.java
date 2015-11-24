@@ -28,6 +28,7 @@ public class ListNearbyProviders extends AppCompatActivity {
 
     private ListView nearbyProvidersView;
     private ArrayAdapter<ReceivedAd> nearbyProviders;
+    //private ArrayAdapter<String> nearbyProviders;
     private int selectedPosition;
     private View selectedView;
 
@@ -43,12 +44,13 @@ public class ListNearbyProviders extends AppCompatActivity {
         nearbyProviders = new ArrayAdapter<ReceivedAd>(this, android.R.layout.simple_list_item_1);
         nearbyProvidersView.setAdapter(nearbyProviders);
 
-        String consumerID = DeviceIdentifier.id(this);
-
+        String consumerID = DeviceIdentifier.id(this); //7 for this emulator, 7 isnt seen
+        consumerID="22";
         JSONArray receivedAds = Reader.getResults("http://fendatr.com/api/v1/consumer/" + consumerID + "/received");
 
         try {
             JSONObject jsonTemp;
+
             for (int i = 0; i < receivedAds.length(); i++) {
                 jsonTemp = receivedAds.getJSONObject(i);
                 String businessID = jsonTemp.getString("BusinessID");
@@ -63,7 +65,10 @@ public class ListNearbyProviders extends AppCompatActivity {
                         jsonTemp2.getString("Name"));
                 nearbyProviders.add(receivedAd);
 
+
+
                 seeReceivedAd(receivedAd.getReceivedAdID());
+
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -74,10 +79,12 @@ public class ListNearbyProviders extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 removeSelection();
                 Intent intent = new Intent(view.getContext(), ViewAd.class);
+
                 intent.putExtra("ReceivedAdID", nearbyProviders.getItem(position).getReceivedAdID());
                 intent.putExtra("AdID", nearbyProviders.getItem(position).getAdID());
                 intent.putExtra("BusinessID", nearbyProviders.getItem(position).getBusinessID());
                 intent.putExtra("BusinessName", nearbyProviders.getItem(position).toString());
+
                 startActivity(intent);
             }
         });

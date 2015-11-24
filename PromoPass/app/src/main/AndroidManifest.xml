@@ -24,7 +24,9 @@
             </intent-filter>
 
         </receiver>
+        
         <service android:name=".ReceiveSignal" />
+
         <activity
             android:name=".ListNearbyProviders"
             android:label="PromoPass"

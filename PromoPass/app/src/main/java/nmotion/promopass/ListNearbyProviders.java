@@ -74,6 +74,7 @@ public class ListNearbyProviders extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        final String finalConsumerID = consumerID;
         nearbyProvidersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -84,7 +85,7 @@ public class ListNearbyProviders extends AppCompatActivity {
                 intent.putExtra("AdID", nearbyProviders.getItem(position).getAdID());
                 intent.putExtra("BusinessID", nearbyProviders.getItem(position).getBusinessID());
                 intent.putExtra("BusinessName", nearbyProviders.getItem(position).toString());
-
+                intent.putExtra("ConsumerID", finalConsumerID);
                 startActivity(intent);
             }
         });

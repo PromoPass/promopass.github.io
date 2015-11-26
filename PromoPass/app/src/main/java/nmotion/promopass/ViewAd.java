@@ -35,7 +35,8 @@ public class ViewAd extends AppCompatActivity {
     private String ReceivedAdID;
     private String BusinessID;
     private String BusinessName;
-    private  String Description;
+    private String ConsumerID;
+    private String Description;
     private String Title;
     private Bitmap Pic;
     private Notification notification;
@@ -51,6 +52,7 @@ public class ViewAd extends AppCompatActivity {
         ReceivedAdID = getIntent().getStringExtra("ReceivedAdID");  // used for save and clear ads
         BusinessID = getIntent().getStringExtra("BusinessID");      // used for favorite and block providers
         BusinessName = getIntent().getStringExtra("BusinessName");
+        ConsumerID = getIntent().getStringExtra("ConsumerID");      // used for favorite and block providers
 
 
 
@@ -116,11 +118,12 @@ public class ViewAd extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.action_favorite:
-                Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/favorite");
+                Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + ConsumerID + "/business/" + BusinessID +  "/favorite");
                 Toast.makeText(this, BusinessName + ": This ad has been favorited.", Toast.LENGTH_LONG).show();
                 break;
             case R.id.action_block:
-                Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/block");
+                Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/clear");
+                Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + ConsumerID + "/business/" + BusinessID + "/block");
                 Toast.makeText(this, BusinessName + ": This provider has been blocked.", Toast.LENGTH_LONG).show();
                 startActivity(new Intent(this, ListNearbyProviders.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 break;

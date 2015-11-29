@@ -26,9 +26,9 @@ import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
 public class ViewAd extends AppCompatActivity {
-    private int MENU_FAVORITE = Menu.FIRST;
-    private int MENU_BLOCK = Menu.FIRST + 1;
-    private int MENU_SAVE = Menu.FIRST + 2;
+    private int MENU_SAVE = Menu.FIRST;
+    private int MENU_FAVORITE = Menu.FIRST + 1;
+    private int MENU_BLOCK = Menu.FIRST + 2;
     private int MENU_CLEAR = Menu.FIRST + 3;
 
     private String AdID;

@@ -22,13 +22,15 @@ public class ListNearbyProviders extends AppCompatActivity {
 
     private Menu optionsMenu;
     private Toolbar toolbar;
-    private int MENU_CLEAR = Menu.FIRST;
-    private int MENU_CLOSE = Menu.FIRST + 1;
+    private int MENU_SAVE = Menu.FIRST;
+    private int MENU_FAVORITE = Menu.FIRST + 1;
+    private int MENU_BLOCK = Menu.FIRST + 2;
+    private int MENU_CLEAR = Menu.FIRST + 3;
+    private int MENU_CLOSE = Menu.FIRST + 4;
     private boolean isSelected;
 
     private ListView nearbyProvidersView;
     private ArrayAdapter<ReceivedAd> nearbyProviders;
-    //private ArrayAdapter<String> nearbyProviders;
     private int selectedPosition;
     private View selectedView;
 
@@ -36,7 +38,6 @@ public class ListNearbyProviders extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_nearby_providers);
-        setTitle("");
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -44,8 +45,7 @@ public class ListNearbyProviders extends AppCompatActivity {
         nearbyProviders = new ArrayAdapter<ReceivedAd>(this, android.R.layout.simple_list_item_1);
         nearbyProvidersView.setAdapter(nearbyProviders);
 
-        String consumerID = DeviceIdentifier.id(this); //7 for this emulator, 7 isnt seen
-        consumerID="22";
+        String consumerID = DeviceIdentifier.id(this);
         JSONArray receivedAds = Reader.getResults("http://fendatr.com/api/v1/consumer/" + consumerID + "/received");
 
         try {
@@ -62,7 +62,8 @@ public class ListNearbyProviders extends AppCompatActivity {
                 ReceivedAd receivedAd = new ReceivedAd(jsonTemp.getString("ReceivedAdID"),
                         jsonTemp.getString("AdID"),
                         businessID,
-                        jsonTemp2.getString("Name"));
+                        jsonTemp2.getString("Name"),
+                        consumerID);
                 nearbyProviders.add(receivedAd);
 
 
@@ -101,6 +102,15 @@ public class ListNearbyProviders extends AppCompatActivity {
 
                 if (!isSelected) {
                     toolbar.setBackgroundColor(ContextCompat.getColor(toolbar.getContext(), R.color.colorPrimarySelected));
+                    optionsMenu.add(0, R.id.action_favorite, MENU_FAVORITE, R.string.action_favorite)
+                            .setIcon(R.drawable.favorite)
+                            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    optionsMenu.add(0, R.id.action_block, MENU_BLOCK, R.string.action_block)
+                            .setIcon(R.drawable.block)
+                            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    optionsMenu.add(0, R.id.action_save, MENU_SAVE, R.string.action_save)
+                            .setIcon(R.drawable.save)
+                            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                     optionsMenu.add(0, R.id.action_close, MENU_CLOSE, R.string.action_close)
                             .setIcon(R.drawable.close)
                             .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -126,16 +136,28 @@ public class ListNearbyProviders extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
-
+        ReceivedAd selectedAd = nearbyProviders.getItem(selectedPosition);
         switch (item.getItemId()) {
-            case R.id.action_clear:
-                ReceivedAd selectedAd = nearbyProviders.getItem(selectedPosition);
-
+            case R.id.action_favorite:
+                Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + selectedAd.getConsumerID() + "/business/" + selectedAd.getBusinessID() +  "/favorite");
+                Toast.makeText(this, selectedAd.toString() + ": This ad has been favorited.", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.action_block:
                 Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/clear");
+                Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + selectedAd.getConsumerID() + "/business/" + selectedAd.getBusinessID() + "/block");
+                Toast.makeText(this, selectedAd.toString() + ": This provider has been blocked.", Toast.LENGTH_LONG).show();
                 nearbyProviders.remove(selectedAd);
-
+                break;
+            case R.id.action_save:
+                Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/save");
+                Toast.makeText(this, selectedAd.toString() + ": This ad has been saved.", Toast.LENGTH_LONG).show();
+                nearbyProviders.remove(selectedAd);
+                break;
+            case R.id.action_clear:
+                Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/clear");
                 Toast.makeText(this, selectedAd.toString() + ": This ad has been deleted.",
                         Toast.LENGTH_LONG).show();
+                nearbyProviders.remove(selectedAd);
                 break;
         }
 
@@ -154,6 +176,9 @@ public class ListNearbyProviders extends AppCompatActivity {
         toolbar.setBackgroundColor(ContextCompat.getColor(toolbar.getContext(), R.color.colorPrimary));
         optionsMenu.removeItem(R.id.action_close);
         optionsMenu.removeItem(R.id.action_clear);
+        optionsMenu.removeItem(R.id.action_save);
+        optionsMenu.removeItem(R.id.action_favorite);
+        optionsMenu.removeItem(R.id.action_block);
 
         if(selectedView != null)
             selectedView.setBackgroundColor(ContextCompat.getColor(selectedView.getContext(), android.R.color.transparent));

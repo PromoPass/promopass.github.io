@@ -26,13 +26,17 @@ import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
 public class ViewAd extends AppCompatActivity {
+    private int MENU_SAVE = Menu.FIRST;
+    private int MENU_FAVORITE = Menu.FIRST + 1;
+    private int MENU_BLOCK = Menu.FIRST + 2;
+    private int MENU_CLEAR = Menu.FIRST + 3;
 
-    private int MENU_CLEAR = Menu.FIRST;
     private String AdID;
     private String ReceivedAdID;
     private String BusinessID;
     private String BusinessName;
-    private  String Description;
+    private String ConsumerID;
+    private String Description;
     private String Title;
     private Bitmap Pic;
     private Notification notification;
@@ -48,10 +52,12 @@ public class ViewAd extends AppCompatActivity {
         ReceivedAdID = getIntent().getStringExtra("ReceivedAdID");  // used for save and clear ads
         BusinessID = getIntent().getStringExtra("BusinessID");      // used for favorite and block providers
         BusinessName = getIntent().getStringExtra("BusinessName");
+        ConsumerID = getIntent().getStringExtra("ConsumerID");      // used for favorite and block providers
 
 
 
-        AdID = "23";
+        AdID = "23";  //Reasigned the AdID, hard coded for the emulator
+
         JSONArray jsonArray = Reader.getResults("http://fendatr.com/api/v1/ad/" + AdID);
 
         JSONObject jsonTemp;
@@ -61,7 +67,8 @@ public class ViewAd extends AppCompatActivity {
             String temp_title = jsonTemp.getString("Title");
             TextView businessTitle_txt = (TextView) findViewById(R.id.title);
 
-            String temp_picURL = "http://fendatr.com/ULf1A14.jpg";
+
+            String temp_picURL = jsonTemp.getString("PicURL") ;
             ImageView picURL = (ImageView) findViewById(R.id.pic);
             ImageStreamer st = new ImageStreamer(picURL);
             st.execute(temp_picURL);
@@ -75,11 +82,8 @@ public class ViewAd extends AppCompatActivity {
                 businessTitle_txt.setText(Title);
             }
         } catch (JSONException e) {
-
+            e.printStackTrace();
         }
-
-
-
 
         TextView businessName_txt = (TextView) findViewById(R.id.businessName);
         businessName_txt.setText(BusinessName);
@@ -91,6 +95,15 @@ public class ViewAd extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, R.id.action_favorite, MENU_FAVORITE, R.string.action_favorite)
+                .setIcon(R.drawable.favorite)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.add(0, R.id.action_block, MENU_BLOCK, R.string.action_block)
+                .setIcon(R.drawable.block)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.add(0, R.id.action_save, MENU_SAVE, R.string.action_save)
+                .setIcon(R.drawable.save)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         menu.add(0, R.id.action_clear, MENU_CLEAR, R.string.action_clear)
                 .setIcon(R.drawable.clear)
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -103,6 +116,21 @@ public class ViewAd extends AppCompatActivity {
         super.onOptionsItemSelected(item);
 
         switch (item.getItemId()) {
+            case R.id.action_favorite:
+                Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + ConsumerID + "/business/" + BusinessID +  "/favorite");
+                Toast.makeText(this, BusinessName + ": This ad has been favorited.", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.action_block:
+                Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/clear");
+                Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + ConsumerID + "/business/" + BusinessID + "/block");
+                Toast.makeText(this, BusinessName + ": This provider has been blocked.", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(this, ListNearbyProviders.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                break;
+            case R.id.action_save:
+                Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/save");
+                Toast.makeText(this, BusinessName + ": This ad has been saved.", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(this, ListNearbyProviders.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                break;
             case R.id.action_clear:
                 Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/clear");
                 Toast.makeText(this, BusinessName + ": This ad has been deleted.", Toast.LENGTH_LONG).show();

@@ -9,13 +9,15 @@ public class ReceivedAd {
     private String AdID;
     private String BusinessID;
     private String BusinessName;
+    private String ConsumerID;
 
-    public ReceivedAd(String receivedAdID, String adID, String businessID, String businessName){
+    public ReceivedAd(String receivedAdID, String adID, String businessID, String businessName, String consumerID){
         super();
         ReceivedAdID = receivedAdID;
         AdID = adID;
         BusinessID = businessID;
         BusinessName = businessName;
+        ConsumerID = consumerID;
     }
 
     @Override
@@ -33,6 +35,10 @@ public class ReceivedAd {
 
     public String getBusinessID(){
         return BusinessID;
+    }
+
+    public String getConsumerID(){
+        return ConsumerID;
     }
 
 }

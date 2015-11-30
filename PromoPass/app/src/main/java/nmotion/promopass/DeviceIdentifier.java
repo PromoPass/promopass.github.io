@@ -78,7 +78,12 @@ public class DeviceIdentifier {
         out.write(deviceID.getBytes());
         out.close();
 
-        Reader.insert("http://fendatr.com/api/v1/consumer", "{\"DeviceID\" : \"" + deviceID + "\"}");
+        JSONArray array = Reader.getResults("http://fendatr.com/api/v1/device/" + deviceID + "/consumer/consumer-id");
+
+        if(array.length() == 0)     // the device ID does not exist already
+        {
+            Reader.insert("http://fendatr.com/api/v1/consumer", "{\"DeviceID\" : \"" + deviceID + "\"}");
+        }
 
         Intent receiveSignal = new Intent(context, ReceiveSignal.class);
         context.startService(receiveSignal);

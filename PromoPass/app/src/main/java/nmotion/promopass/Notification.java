@@ -37,6 +37,8 @@ public class Notification {
 
         if(receivedAdExists(adID, consumerID)) return;
 
+        if(isBlocked(businessID, consumerID)) return;
+
         Reader.insert("http://fendatr.com/api/v1/received/ad",
                 "{\"AdID\" : \"" + adID + "\", \"ConsumerID\" : \"" + consumerID + "\", \"BusinessID\" : \"" + businessID + "\"}");
 
@@ -63,6 +65,25 @@ public class Notification {
         }
 
         inboxStyle.setBigContentTitle(count + " businesses are nearby.");
+    }
+
+    private boolean isBlocked(String businessID, String consumerID){
+
+        String block = null;
+        JSONObject json;
+
+        try {
+
+            JSONArray results = Reader.getResults("http://fendatr.com/api/v1/preferences/consumer/"+consumerID
+                    +"/business/"+businessID+"/check/block");
+            json = results.getJSONObject(0);
+            block = json.getString("IsBlocked");
+            if(block.equals("1"))
+                return true;
+        } catch (JSONException e) { }
+
+
+        return false;
     }
 
     private String getBusinessName(JSONArray businessIDs, int index){

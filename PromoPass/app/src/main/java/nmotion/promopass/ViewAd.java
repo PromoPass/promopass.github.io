@@ -56,8 +56,7 @@ public class ViewAd extends AppCompatActivity {
 
 
 
-        AdID = "23";  //Reasigned the AdID, hard coded for the emulator
-
+        //AdID = "23";
         JSONArray jsonArray = Reader.getResults("http://fendatr.com/api/v1/ad/" + AdID);
 
         JSONObject jsonTemp;
@@ -67,8 +66,7 @@ public class ViewAd extends AppCompatActivity {
             String temp_title = jsonTemp.getString("Title");
             TextView businessTitle_txt = (TextView) findViewById(R.id.title);
 
-
-            String temp_picURL = jsonTemp.getString("PicURL") ;
+            String temp_picURL = "http://fendatr.com/ULf1A14.jpg";
             ImageView picURL = (ImageView) findViewById(R.id.pic);
             ImageStreamer st = new ImageStreamer(picURL);
             st.execute(temp_picURL);
@@ -82,8 +80,11 @@ public class ViewAd extends AppCompatActivity {
                 businessTitle_txt.setText(Title);
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+
         }
+
+
+
 
         TextView businessName_txt = (TextView) findViewById(R.id.businessName);
         businessName_txt.setText(BusinessName);

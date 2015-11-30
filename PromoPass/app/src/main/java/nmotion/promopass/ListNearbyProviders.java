@@ -45,9 +45,9 @@ public class ListNearbyProviders extends AppCompatActivity {
         nearbyProviders = new ArrayAdapter<ReceivedAd>(this, android.R.layout.simple_list_item_1);
         nearbyProvidersView.setAdapter(nearbyProviders);
 
-
         String consumerID = DeviceIdentifier.id(this); //7 for this emulator, 7 isnt seen
         consumerID="22"; //Hard coded for the emulator
+
 
         JSONArray receivedAds = Reader.getResults("http://fendatr.com/api/v1/consumer/" + consumerID + "/received");
 

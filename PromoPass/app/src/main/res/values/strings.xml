@@ -12,4 +12,10 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_list_saved_ads">ListSavedAds</string>
     <string name="emptySavedAds">No saved ads.</string>
+    <string name="title_activity_favorite_provider">FavoriteProvider</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_blocked_provider">BlockedProvider</string>
+    <string name="emptyBlockedList">Empty Blocked List</string>
+    <string name="emptyFavoritedList">Empty Favorites List</string>
 </resources>

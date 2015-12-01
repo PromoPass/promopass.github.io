@@ -46,7 +46,10 @@ public class MainActivity extends AppCompatActivity {
                         intent = new Intent(view.getContext(), ListSavedAds.class);
                         break;
                     case 2:
-                        //intent = new Intent(view.getContext(), FavoriteProviders.class);
+                        intent = new Intent(view.getContext(), FavoriteProvider.class);
+                        break;
+                    case 3:
+                        intent = new Intent(view.getContext(), BlockedProvider.class);
                         break;
                 }
                 startActivity(intent);

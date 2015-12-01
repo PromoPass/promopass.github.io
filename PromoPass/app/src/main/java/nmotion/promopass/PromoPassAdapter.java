@@ -35,8 +35,8 @@ public class PromoPassAdapter extends ArrayAdapter<ReceivedAd> {
             TextView text1 = (TextView) twoLineListItem.findViewById(android.R.id.text1);
             TextView text2 = (TextView) twoLineListItem.findViewById(android.R.id.text2);
 
-            text1.setText(this.getItem(position).toString());
-            text2.setText(this.getItem(position).getTitle());
+            text2.setText(this.getItem(position).toString());
+            text1.setText(this.getItem(position).getTitle());
         }
 
         return twoLineListItem;

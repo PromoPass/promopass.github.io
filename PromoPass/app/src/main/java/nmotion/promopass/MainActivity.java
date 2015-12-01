@@ -22,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        DeviceIdentifier.id(this);
+
         mainListView = (ListView) findViewById(R.id.main_list);
         mainList = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
         mainListView.setAdapter(mainList);

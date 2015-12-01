@@ -2,7 +2,6 @@ package nmotion.promopass;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -13,17 +12,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.concurrent.ExecutionException;
 
 public class ViewAd extends AppCompatActivity {
     private int MENU_SAVE = Menu.FIRST;
@@ -119,12 +110,12 @@ public class ViewAd extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_favorite:
                 Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + ConsumerID + "/business/" + BusinessID +  "/favorite");
-                Toast.makeText(this, BusinessName + ": This ad has been favorited.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, BusinessName + ": This business has been favorited.", Toast.LENGTH_LONG).show();
                 break;
             case R.id.action_block:
                 Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/clear");
                 Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + ConsumerID + "/business/" + BusinessID + "/block");
-                Toast.makeText(this, BusinessName + ": This provider has been blocked.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, BusinessName + ": This business has been blocked.", Toast.LENGTH_LONG).show();
                 startActivity(new Intent(this, ListNearbyProviders.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 break;
             case R.id.action_save:

@@ -11,4 +11,5 @@
     <string name="emptyNearbyList">No businesses are near you.</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_list_saved_ads">ListSavedAds</string>
+    <string name="emptySavedAds">No saved ads.</string>
 </resources>

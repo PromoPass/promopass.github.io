@@ -30,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
 
         mainList.add("Nearby Businesses");
         mainList.add("Saved Ads");
+        mainList.add("Favorite Providers");
+        mainList.add("Blocked Providers");
 
 
         mainListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -42,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case 1:
                         intent = new Intent(view.getContext(), ListSavedAds.class);
+                        break;
+                    case 2:
+                        //intent = new Intent(view.getContext(), FavoriteProviders.class);
                         break;
                 }
                 startActivity(intent);

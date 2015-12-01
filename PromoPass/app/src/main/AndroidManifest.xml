@@ -28,7 +28,7 @@
         <activity
             android:name=".ListNearbyProviders"
             android:label=""
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ViewAd"
             android:label=""
@@ -46,6 +46,14 @@
         <activity
             android:name=".ListSavedAds"
             android:label=""
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ListFavoriteProviders"
+            android:label="@string/title_activity_list_favorite_providers"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ListBlockedProviders"
+            android:label="@string/title_activity_list_blocked_providers"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

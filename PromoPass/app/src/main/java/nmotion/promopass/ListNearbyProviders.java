@@ -144,22 +144,22 @@ public class ListNearbyProviders extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_favorite:
                 Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + selectedAd.getConsumerID() + "/business/" + selectedAd.getBusinessID() +  "/favorite");
-                Toast.makeText(this, selectedAd.toString() + ": This business has been favorited.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, selectedAd.toString() + getString(R.string.favorite_string), Toast.LENGTH_LONG).show();
                 break;
             case R.id.action_block:
                 Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/clear");
                 Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + selectedAd.getConsumerID() + "/business/" + selectedAd.getBusinessID() + "/block");
-                Toast.makeText(this, selectedAd.toString() + ": This business has been blocked.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, selectedAd.toString() + getString(R.string.block_string), Toast.LENGTH_LONG).show();
                 nearbyProviders.remove(selectedAd);
                 break;
             case R.id.action_save:
                 Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/save");
-                Toast.makeText(this, selectedAd.toString() + ": This ad has been saved.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, selectedAd.getTitle() + getString(R.string.saved_string), Toast.LENGTH_LONG).show();
                 nearbyProviders.remove(selectedAd);
                 break;
             case R.id.action_clear:
                 Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/clear");
-                Toast.makeText(this, selectedAd.toString() + ": This ad has been deleted.",
+                Toast.makeText(this, selectedAd.getTitle() + getString(R.string.clear_string),
                         Toast.LENGTH_LONG).show();
                 nearbyProviders.remove(selectedAd);
                 break;

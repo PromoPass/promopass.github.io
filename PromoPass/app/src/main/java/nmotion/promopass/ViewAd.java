@@ -123,22 +123,23 @@ public class ViewAd extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_favorite:
                 Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + ConsumerID + "/business/" + BusinessID +  "/favorite");
-                Toast.makeText(this, BusinessName + ": This business has been favorited.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, BusinessName + getString(R.string.favorite_string), Toast.LENGTH_LONG).show();
                 break;
             case R.id.action_block:
                 Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/clear");
                 Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + ConsumerID + "/business/" + BusinessID + "/block");
-                Toast.makeText(this, BusinessName + ": This business has been blocked.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, BusinessName + getString(R.string.block_string), Toast.LENGTH_LONG).show();
                 startActivity(new Intent(this, ListNearbyProviders.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 break;
             case R.id.action_save:
                 Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/save");
-                Toast.makeText(this, BusinessName + ": This ad has been saved.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, Title + getString(R.string.saved_string), Toast.LENGTH_LONG).show();
                 startActivity(new Intent(this, ListNearbyProviders.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 break;
             case R.id.action_clear:
                 Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/clear");
-                Toast.makeText(this, BusinessName + ": This ad has been deleted.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, Title + getString(R.string.clear_string),
+                        Toast.LENGTH_LONG).show();
                 if(isSavedAd)
                 {
                     startActivity(new Intent(this, ListSavedAds.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));

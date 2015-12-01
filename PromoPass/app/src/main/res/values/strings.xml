@@ -12,4 +12,14 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_list_saved_ads">ListSavedAds</string>
     <string name="emptySavedAds">No saved ads.</string>
+    <string name="title_activity_list_favorite_providers">ListFavoriteProviders</string>
+    <string name="emptyFavoritesString">No favorite businesses.</string>
+    <string name="clear_string">: This ad has been deleted.</string>
+    <string name="unfavorite_string">: This business has been removed from your favorites.</string>
+    <string name="unblock_string">: This business has been unblocked.</string>
+    <string name="saved_string">: This ad has been saved.</string>
+    <string name="block_string">: This business has been blocked.</string>
+    <string name="favorite_string">: This business has been added to favorites.</string>
+    <string name="title_activity_list_blocked_providers">ListBlockedProviders</string>
+    <string name="emptyBlockedString">No blocked businesses.</string>
 </resources>

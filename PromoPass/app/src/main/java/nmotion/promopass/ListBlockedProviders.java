@@ -1,6 +1,5 @@
 package nmotion.promopass;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -10,92 +9,55 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class ListSavedAds extends AppCompatActivity {
+public class ListBlockedProviders extends AppCompatActivity {
 
     private Menu optionsMenu;
     private Toolbar toolbar;
     private int MENU_CLEAR = Menu.FIRST;
     private int MENU_CLOSE = Menu.FIRST + 1;
     private boolean isSelected;
-    private ListView savedAdsView;
-    private PromoPassAdapter savedAds;
+    private ListView blockedProvidersView;
+    private ArrayAdapter<Preference> blockedProviders;
     private int selectedPosition;
     private View selectedView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_saved_ads);
+        setContentView(R.layout.activity_list_blocked_providers);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        savedAdsView = (ListView) findViewById(R.id.savedAds_list);
-        List<ReceivedAd> list = new ArrayList<ReceivedAd>();
-        savedAds = new PromoPassAdapter(this);
-        savedAdsView.setAdapter(savedAds);
+        blockedProvidersView = (ListView) findViewById(R.id.blocked_list);
+        blockedProviders = new ArrayAdapter<Preference>(this, android.R.layout.simple_list_item_1);
+        blockedProvidersView.setAdapter(blockedProviders);
 
         // get all saved ads for consumer listed by received date
 
         String consumerID = DeviceIdentifier.id(this);
-
-        JSONArray savedReceivedAds = Reader.getResults("http://fendatr.com/api/v1/received/ad/"+consumerID+"/saved");
-
+        // get all favorite providers that are not blocked
+        //JSONArray savedReceivedAds = Reader.getResults("http://fendatr.com/api/v1/received/ad/" + consumerID + "/saved");
+/*
         try {
             JSONObject jsonTemp;
 
             for (int i = 0; i < savedReceivedAds.length(); i++) {
                 jsonTemp = savedReceivedAds.getJSONObject(i);
-                String businessID = jsonTemp.getString("BusinessID");
-                String adID = jsonTemp.getString("AdID");
 
-                JSONArray businessName = Reader.getResults("http://fendatr.com/api/v1/business/" + businessID + "/name");
-                JSONArray adTitle = Reader.getResults("http://fendatr.com/api/v1/ad/" + adID);
-
-                JSONObject name = businessName.getJSONObject(0);
-                JSONObject title = adTitle.getJSONObject(0);
-
-                ReceivedAd receivedAd = new ReceivedAd(jsonTemp.getString("ReceivedAdID"),
-                        adID,
-                        businessID,
-                        name.getString("Name"),
-                        consumerID,
-                        title.getString("Title"));
-                savedAds.add(receivedAd);
+                // get BusinessName & PreferenceID
+                Preference preference = new Preference("", "");
+                favoriteProviders.add(preference);
 
             }
         } catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
 
-
-        final String finalConsumerID = consumerID;
-        savedAdsView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                removeSelection();
-                Intent intent = new Intent(view.getContext(), ViewAd.class);
-
-                intent.putExtra("ReceivedAdID", savedAds.getItem(position).getReceivedAdID());
-                intent.putExtra("AdID", savedAds.getItem(position).getAdID());
-                intent.putExtra("BusinessID", savedAds.getItem(position).getBusinessID());
-                intent.putExtra("BusinessName", savedAds.getItem(position).toString());
-                intent.putExtra("ConsumerID", finalConsumerID);
-                intent.putExtra("IsSavedAd", true);
-                startActivity(intent);
-            }
-        });
-
-        savedAdsView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        blockedProvidersView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 if (selectedView != null)
@@ -110,7 +72,7 @@ public class ListSavedAds extends AppCompatActivity {
                             .setIcon(R.drawable.close)
                             .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                     optionsMenu.add(0, R.id.action_clear, MENU_CLEAR, R.string.action_clear)
-                            .setIcon(R.drawable.clear)
+                            .setIcon(R.drawable.unblock)
                             .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                     isSelected = true;
                 }
@@ -118,7 +80,7 @@ public class ListSavedAds extends AppCompatActivity {
             }
         });
 
-        savedAdsView.setEmptyView(findViewById(R.id.emptySaved));
+        blockedProvidersView.setEmptyView(findViewById(R.id.emptyBlocked));
 
     }
     @Override
@@ -130,13 +92,14 @@ public class ListSavedAds extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
-        ReceivedAd selectedAd = savedAds.getItem(selectedPosition);
+        Preference selectedAd = blockedProviders.getItem(selectedPosition);
         switch (item.getItemId()) {
             case R.id.action_clear:
-                Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/clear");
-                Toast.makeText(this, selectedAd.getTitle() + getString(R.string.clear_string),
+                // set block = 0
+                //Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/clear");
+                Toast.makeText(this, selectedAd.toString() + getString(R.string.unblock_string),
                         Toast.LENGTH_LONG).show();
-                savedAds.remove(selectedAd);
+                blockedProviders.remove(selectedAd);
                 break;
         }
 

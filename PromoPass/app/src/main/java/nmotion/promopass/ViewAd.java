@@ -31,6 +31,7 @@ public class ViewAd extends AppCompatActivity {
     private String Title;
     private Bitmap Pic;
     private Notification notification;
+    private boolean isSavedAd = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +45,8 @@ public class ViewAd extends AppCompatActivity {
         BusinessID = getIntent().getStringExtra("BusinessID");      // used for favorite and block providers
         BusinessName = getIntent().getStringExtra("BusinessName");
         ConsumerID = getIntent().getStringExtra("ConsumerID");      // used for favorite and block providers
+        if (getIntent().hasExtra("IsSavedAd"))
+            isSavedAd = true;
 
 
 
@@ -87,18 +90,28 @@ public class ViewAd extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, R.id.action_favorite, MENU_FAVORITE, R.string.action_favorite)
-                .setIcon(R.drawable.favorite)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        menu.add(0, R.id.action_block, MENU_BLOCK, R.string.action_block)
-                .setIcon(R.drawable.block)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        menu.add(0, R.id.action_save, MENU_SAVE, R.string.action_save)
-                .setIcon(R.drawable.save)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        menu.add(0, R.id.action_clear, MENU_CLEAR, R.string.action_clear)
-                .setIcon(R.drawable.clear)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        if(isSavedAd)
+        {
+            menu.add(0, R.id.action_clear, Menu.FIRST, R.string.action_clear)
+                    .setIcon(R.drawable.clear)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
+        else
+        {
+            menu.add(0, R.id.action_favorite, MENU_FAVORITE, R.string.action_favorite)
+                    .setIcon(R.drawable.favorite)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            menu.add(0, R.id.action_block, MENU_BLOCK, R.string.action_block)
+                    .setIcon(R.drawable.block)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            menu.add(0, R.id.action_save, MENU_SAVE, R.string.action_save)
+                    .setIcon(R.drawable.save)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            menu.add(0, R.id.action_clear, MENU_CLEAR, R.string.action_clear)
+                    .setIcon(R.drawable.clear)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -126,7 +139,14 @@ public class ViewAd extends AppCompatActivity {
             case R.id.action_clear:
                 Reader.update("http://fendatr.com/api/v1/received/ad/" + ReceivedAdID + "/clear");
                 Toast.makeText(this, BusinessName + ": This ad has been deleted.", Toast.LENGTH_LONG).show();
-                startActivity(new Intent(this, ListNearbyProviders.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                if(isSavedAd)
+                {
+                    startActivity(new Intent(this, ListSavedAds.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                }
+                else
+                {
+                    startActivity(new Intent(this, ListNearbyProviders.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                }
                 break;
         }
 

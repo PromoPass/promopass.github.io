@@ -10,7 +10,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -30,7 +29,7 @@ public class ListNearbyProviders extends AppCompatActivity {
     private boolean isSelected;
 
     private ListView nearbyProvidersView;
-    private ArrayAdapter<ReceivedAd> nearbyProviders;
+    private PromoPassAdapter nearbyProviders;
     private int selectedPosition;
     private View selectedView;
 
@@ -42,12 +41,10 @@ public class ListNearbyProviders extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         nearbyProvidersView = (ListView) findViewById(R.id.nearbyProviders_list);
-        nearbyProviders = new ArrayAdapter<ReceivedAd>(this, android.R.layout.simple_list_item_1);
+        nearbyProviders = new PromoPassAdapter(this);
         nearbyProvidersView.setAdapter(nearbyProviders);
 
         String consumerID = DeviceIdentifier.id(this); //7 for this emulator, 7 isnt seen
-        consumerID="22"; //Hard coded for the emulator
-
 
         JSONArray receivedAds = Reader.getResults("http://fendatr.com/api/v1/consumer/" + consumerID + "/received");
 
@@ -57,16 +54,20 @@ public class ListNearbyProviders extends AppCompatActivity {
             for (int i = 0; i < receivedAds.length(); i++) {
                 jsonTemp = receivedAds.getJSONObject(i);
                 String businessID = jsonTemp.getString("BusinessID");
+                String adID = jsonTemp.getString("AdID");
 
-                JSONArray allArrays_JSONARRAY = Reader.getResults("http://fendatr.com/api/v1/business/" + businessID + "/name");
+                JSONArray businessName = Reader.getResults("http://fendatr.com/api/v1/business/" + businessID + "/name");
+                JSONArray adTitle = Reader.getResults("http://fendatr.com/api/v1/ad/" + adID);
 
-                JSONObject jsonTemp2 = allArrays_JSONARRAY.getJSONObject(0);
+                JSONObject name = businessName.getJSONObject(0);
+                JSONObject title = adTitle.getJSONObject(0);
 
                 ReceivedAd receivedAd = new ReceivedAd(jsonTemp.getString("ReceivedAdID"),
-                        jsonTemp.getString("AdID"),
+                        adID,
                         businessID,
-                        jsonTemp2.getString("Name"),
-                        consumerID);
+                        name.getString("Name"),
+                        consumerID,
+                        title.getString("Title"));
                 nearbyProviders.add(receivedAd);
 
 

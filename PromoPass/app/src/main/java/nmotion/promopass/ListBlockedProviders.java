@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,6 +13,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class ListBlockedProviders extends AppCompatActivity {
 
@@ -36,26 +41,29 @@ public class ListBlockedProviders extends AppCompatActivity {
         blockedProviders = new ArrayAdapter<Preference>(this, android.R.layout.simple_list_item_1);
         blockedProvidersView.setAdapter(blockedProviders);
 
-        // get all saved ads for consumer listed by received date
+        if(InternetCheck.isNetworkConnected(this)){
 
-        String consumerID = DeviceIdentifier.id(this);
-        // get all favorite providers that are not blocked
-        //JSONArray savedReceivedAds = Reader.getResults("http://fendatr.com/api/v1/received/ad/" + consumerID + "/saved");
-/*
-        try {
-            JSONObject jsonTemp;
+            String consumerID = DeviceIdentifier.id(this);
 
-            for (int i = 0; i < savedReceivedAds.length(); i++) {
-                jsonTemp = savedReceivedAds.getJSONObject(i);
+            // get all favorite providers that are not blocked
+            JSONArray blockedPreferences = Reader.getResults("http://fendatr.com/api/v1/preferences/consumer/"
+                    + consumerID + "/blocked/businesses");
 
-                // get BusinessName & PreferenceID
-                Preference preference = new Preference("", "");
-                favoriteProviders.add(preference);
+            try {
+                JSONObject jsonTemp;
 
+                for (int i = 0; i < blockedPreferences.length(); i++) {
+                    jsonTemp = blockedPreferences.getJSONObject(i);
+
+                    // get BusinessName & PreferenceID
+                    Preference preference = new Preference(jsonTemp.getString("Name"), jsonTemp.getString("PreferenceID"));
+                    blockedProviders.add(preference);
+
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }*/
+        }
 
         blockedProvidersView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -83,6 +91,19 @@ public class ListBlockedProviders extends AppCompatActivity {
         blockedProvidersView.setEmptyView(findViewById(R.id.emptyBlocked));
 
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)  {
+        if (keyCode == KeyEvent.KEYCODE_BACK ) {
+            if(isSelected) {
+                removeSelection();
+                return true;
+            }
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         optionsMenu = menu;
@@ -92,18 +113,23 @@ public class ListBlockedProviders extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
-        Preference selectedAd = blockedProviders.getItem(selectedPosition);
-        switch (item.getItemId()) {
-            case R.id.action_clear:
-                // set block = 0
-                //Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/clear");
-                Toast.makeText(this, selectedAd.toString() + getString(R.string.unblock_string),
-                        Toast.LENGTH_LONG).show();
-                blockedProviders.remove(selectedAd);
-                break;
-        }
 
-        removeSelection();
+        if(InternetCheck.isNetworkConnected(this)){
+
+            Preference selectedPreference = blockedProviders.getItem(selectedPosition);
+            switch (item.getItemId()) {
+                case R.id.action_clear:
+                    // set block = 0
+                    Reader.update("http://fendatr.com/api/v1/preferences/" + selectedPreference.getPreferenceID() + "/unblock");
+                    Toast.makeText(this, selectedPreference.toString() + getString(R.string.unblock_string),
+                            Toast.LENGTH_LONG).show();
+                    blockedProviders.remove(selectedPreference);
+                    break;
+            }
+
+            removeSelection();
+
+        }
 
         return false;
     }

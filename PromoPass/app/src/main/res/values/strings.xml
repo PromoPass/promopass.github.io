@@ -22,4 +22,12 @@
     <string name="favorite_string">: This business has been added to favorites.</string>
     <string name="title_activity_list_blocked_providers">ListBlockedProviders</string>
     <string name="emptyBlockedString">No blocked businesses.</string>
+    <string name="Main_Menu">Main Menu</string>
+    <string name="Nearby_Businesses">Nearby Businesses</string>
+    <string name="Saved_Ads">Saved Ads</string>
+    <string name="Favorite_Businesses">Favorite Businesses</string>
+    <string name="Blocked_Businesses">Blocked Businesses</string>
+    <string name="title_activity_no_internet">NoInternet</string>
+    <string name="checkConnection">Check connection and try again.</string>
+    <string name="noInternet">No internet.</string>
 </resources>

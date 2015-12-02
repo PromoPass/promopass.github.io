@@ -49,11 +49,15 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ListFavoriteProviders"
-            android:label="@string/title_activity_list_favorite_providers"
+            android:label=""
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ListBlockedProviders"
-            android:label="@string/title_activity_list_blocked_providers"
+            android:label=""
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".NoInternet"
+            android:label=""
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

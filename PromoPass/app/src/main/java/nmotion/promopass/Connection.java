@@ -19,6 +19,7 @@ class Connection extends AsyncTask<String, Void, JSONArray> {
 
 	OkHttpClient client = new OkHttpClient();
 
+    @Override
 	protected JSONArray doInBackground(String... urls) {
         Request request;
 

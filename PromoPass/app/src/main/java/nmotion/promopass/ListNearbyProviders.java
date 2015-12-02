@@ -1,11 +1,13 @@
 package nmotion.promopass;
 
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,10 +23,10 @@ public class ListNearbyProviders extends AppCompatActivity {
 
     private Menu optionsMenu;
     private Toolbar toolbar;
-    private int MENU_SAVE = Menu.FIRST;
-    private int MENU_FAVORITE = Menu.FIRST + 1;
-    private int MENU_BLOCK = Menu.FIRST + 2;
-    private int MENU_CLEAR = Menu.FIRST + 3;
+    private int MENU_CLEAR = Menu.FIRST;
+    private int MENU_BLOCK = Menu.FIRST + 1;
+    private int MENU_FAVORITE = Menu.FIRST + 2;
+    private int MENU_SAVE = Menu.FIRST + 3;
     private int MENU_CLOSE = Menu.FIRST + 4;
     private boolean isSelected;
 
@@ -44,39 +46,47 @@ public class ListNearbyProviders extends AppCompatActivity {
         nearbyProviders = new PromoPassAdapter(this);
         nearbyProvidersView.setAdapter(nearbyProviders);
 
-        String consumerID = DeviceIdentifier.id(this); //7 for this emulator, 7 isnt seen
+        String consumerID = null;
+        if(InternetCheck.isNetworkConnected(this)){
 
-        JSONArray receivedAds = Reader.getResults("http://fendatr.com/api/v1/consumer/" + consumerID + "/received");
+            consumerID = DeviceIdentifier.id(this); //7 for this emulator, 7 isnt seen
 
-        try {
-            JSONObject jsonTemp;
+            JSONArray receivedAds = Reader.getResults("http://fendatr.com/api/v1/consumer/" + consumerID + "/received");
 
-            for (int i = 0; i < receivedAds.length(); i++) {
-                jsonTemp = receivedAds.getJSONObject(i);
-                String businessID = jsonTemp.getString("BusinessID");
-                String adID = jsonTemp.getString("AdID");
+            try {
+                JSONObject jsonTemp;
 
-                JSONArray businessName = Reader.getResults("http://fendatr.com/api/v1/business/" + businessID + "/name");
-                JSONArray adTitle = Reader.getResults("http://fendatr.com/api/v1/ad/" + adID);
+                for (int i = 0; i < receivedAds.length(); i++) {
+                    jsonTemp = receivedAds.getJSONObject(i);
+                    String businessID = jsonTemp.getString("BusinessID");
+                    String adID = jsonTemp.getString("AdID");
 
-                JSONObject name = businessName.getJSONObject(0);
-                JSONObject title = adTitle.getJSONObject(0);
+                    JSONArray businessName = Reader.getResults("http://fendatr.com/api/v1/business/" + businessID + "/name");
+                    JSONArray adTitle = Reader.getResults("http://fendatr.com/api/v1/ad/" + adID);
 
-                ReceivedAd receivedAd = new ReceivedAd(jsonTemp.getString("ReceivedAdID"),
-                        adID,
-                        businessID,
-                        name.getString("Name"),
-                        consumerID,
-                        title.getString("Title"));
-                nearbyProviders.add(receivedAd);
+                    JSONObject name = businessName.getJSONObject(0);
+                    JSONObject title = adTitle.getJSONObject(0);
+
+                    ReceivedAd receivedAd = new ReceivedAd(jsonTemp.getString("ReceivedAdID"),
+                            adID,
+                            businessID,
+                            name.getString("Name"),
+                            consumerID,
+                            title.getString("Title"));
+                    nearbyProviders.add(receivedAd);
 
 
 
-                seeReceivedAd(receivedAd.getReceivedAdID());
+                    seeReceivedAd(receivedAd.getReceivedAdID());
 
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
+
+            NotificationManager notificationManager = (NotificationManager)getSystemService(this.NOTIFICATION_SERVICE);
+            notificationManager.cancel(0);
+
         }
 
         final String finalConsumerID = consumerID;
@@ -91,6 +101,7 @@ public class ListNearbyProviders extends AppCompatActivity {
                 intent.putExtra("BusinessID", nearbyProviders.getItem(position).getBusinessID());
                 intent.putExtra("BusinessName", nearbyProviders.getItem(position).toString());
                 intent.putExtra("ConsumerID", finalConsumerID);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             }
         });
@@ -132,6 +143,18 @@ public class ListNearbyProviders extends AppCompatActivity {
     }
 
     @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)  {
+        if (keyCode == KeyEvent.KEYCODE_BACK ) {
+            if(isSelected) {
+                removeSelection();
+                return true;
+            }
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         optionsMenu = menu;
         return super.onCreateOptionsMenu(menu);
@@ -140,32 +163,43 @@ public class ListNearbyProviders extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
-        ReceivedAd selectedAd = nearbyProviders.getItem(selectedPosition);
-        switch (item.getItemId()) {
-            case R.id.action_favorite:
-                Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + selectedAd.getConsumerID() + "/business/" + selectedAd.getBusinessID() +  "/favorite");
-                Toast.makeText(this, selectedAd.toString() + getString(R.string.favorite_string), Toast.LENGTH_LONG).show();
-                break;
-            case R.id.action_block:
-                Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/clear");
-                Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + selectedAd.getConsumerID() + "/business/" + selectedAd.getBusinessID() + "/block");
-                Toast.makeText(this, selectedAd.toString() + getString(R.string.block_string), Toast.LENGTH_LONG).show();
-                nearbyProviders.remove(selectedAd);
-                break;
-            case R.id.action_save:
-                Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/save");
-                Toast.makeText(this, selectedAd.getTitle() + getString(R.string.saved_string), Toast.LENGTH_LONG).show();
-                nearbyProviders.remove(selectedAd);
-                break;
-            case R.id.action_clear:
-                Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/clear");
-                Toast.makeText(this, selectedAd.getTitle() + getString(R.string.clear_string),
-                        Toast.LENGTH_LONG).show();
-                nearbyProviders.remove(selectedAd);
-                break;
-        }
 
-        removeSelection();
+        if(InternetCheck.isNetworkConnected(this)){
+
+            ReceivedAd selectedAd = nearbyProviders.getItem(selectedPosition);
+            switch (item.getItemId()) {
+                case R.id.action_favorite:
+                    Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + selectedAd.getConsumerID() + "/business/" + selectedAd.getBusinessID() +  "/favorite");
+                    Toast.makeText(this, selectedAd.toString() + getString(R.string.favorite_string), Toast.LENGTH_LONG).show();
+                    break;
+                case R.id.action_block:
+                    Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + selectedAd.getConsumerID() + "/business/" + selectedAd.getBusinessID() + "/block");
+                    Toast.makeText(this, selectedAd.toString() + getString(R.string.block_string), Toast.LENGTH_LONG).show();
+                    String businessID = selectedAd.getBusinessID();
+                    for(int i=0; i<nearbyProviders.getCount(); i++){
+                        ReceivedAd currentAd = nearbyProviders.getItem(i);
+                        if(businessID.equals(currentAd.getBusinessID())){
+                            nearbyProviders.remove(currentAd);
+                            i--;
+                        }
+                    }
+                    break;
+                case R.id.action_save:
+                    Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/save");
+                    Toast.makeText(this, selectedAd.getTitle() + getString(R.string.saved_string), Toast.LENGTH_LONG).show();
+                    nearbyProviders.remove(selectedAd);
+                    break;
+                case R.id.action_clear:
+                    Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/clear");
+                    Toast.makeText(this, selectedAd.getTitle() + getString(R.string.clear_string),
+                            Toast.LENGTH_LONG).show();
+                    nearbyProviders.remove(selectedAd);
+                    break;
+            }
+
+            removeSelection();
+
+        }
 
         return false;
     }

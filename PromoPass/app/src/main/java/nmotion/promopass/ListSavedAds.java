@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,7 +26,9 @@ public class ListSavedAds extends AppCompatActivity {
     private Menu optionsMenu;
     private Toolbar toolbar;
     private int MENU_CLEAR = Menu.FIRST;
-    private int MENU_CLOSE = Menu.FIRST + 1;
+    private int MENU_BLOCK = Menu.FIRST + 1;
+    private int MENU_FAVORITE = Menu.FIRST + 2;
+    private int MENU_CLOSE = Menu.FIRST + 3;
     private boolean isSelected;
     private ListView savedAdsView;
     private PromoPassAdapter savedAds;
@@ -46,37 +49,41 @@ public class ListSavedAds extends AppCompatActivity {
 
         // get all saved ads for consumer listed by received date
 
-        String consumerID = DeviceIdentifier.id(this);
+        String consumerID = null;
+        if(InternetCheck.isNetworkConnected(this)){
 
-        JSONArray savedReceivedAds = Reader.getResults("http://fendatr.com/api/v1/received/ad/"+consumerID+"/saved");
+            consumerID = DeviceIdentifier.id(this);
 
-        try {
-            JSONObject jsonTemp;
+            JSONArray savedReceivedAds = Reader.getResults("http://fendatr.com/api/v1/received/ad/"+consumerID+"/saved");
 
-            for (int i = 0; i < savedReceivedAds.length(); i++) {
-                jsonTemp = savedReceivedAds.getJSONObject(i);
-                String businessID = jsonTemp.getString("BusinessID");
-                String adID = jsonTemp.getString("AdID");
+            try {
+                JSONObject jsonTemp;
 
-                JSONArray businessName = Reader.getResults("http://fendatr.com/api/v1/business/" + businessID + "/name");
-                JSONArray adTitle = Reader.getResults("http://fendatr.com/api/v1/ad/" + adID);
+                for (int i = 0; i < savedReceivedAds.length(); i++) {
+                    jsonTemp = savedReceivedAds.getJSONObject(i);
+                    String businessID = jsonTemp.getString("BusinessID");
+                    String adID = jsonTemp.getString("AdID");
 
-                JSONObject name = businessName.getJSONObject(0);
-                JSONObject title = adTitle.getJSONObject(0);
+                    JSONArray businessName = Reader.getResults("http://fendatr.com/api/v1/business/" + businessID + "/name");
+                    JSONArray adTitle = Reader.getResults("http://fendatr.com/api/v1/ad/" + adID);
 
-                ReceivedAd receivedAd = new ReceivedAd(jsonTemp.getString("ReceivedAdID"),
-                        adID,
-                        businessID,
-                        name.getString("Name"),
-                        consumerID,
-                        title.getString("Title"));
-                savedAds.add(receivedAd);
+                    JSONObject name = businessName.getJSONObject(0);
+                    JSONObject title = adTitle.getJSONObject(0);
 
+                    ReceivedAd receivedAd = new ReceivedAd(jsonTemp.getString("ReceivedAdID"),
+                            adID,
+                            businessID,
+                            name.getString("Name"),
+                            consumerID,
+                            title.getString("Title"));
+                    savedAds.add(receivedAd);
+
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
 
+        }
 
         final String finalConsumerID = consumerID;
         savedAdsView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -91,6 +98,7 @@ public class ListSavedAds extends AppCompatActivity {
                 intent.putExtra("BusinessName", savedAds.getItem(position).toString());
                 intent.putExtra("ConsumerID", finalConsumerID);
                 intent.putExtra("IsSavedAd", true);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             }
         });
@@ -106,6 +114,12 @@ public class ListSavedAds extends AppCompatActivity {
 
                 if (!isSelected) {
                     toolbar.setBackgroundColor(ContextCompat.getColor(toolbar.getContext(), R.color.colorPrimarySelected));
+                    optionsMenu.add(0, R.id.action_favorite, MENU_FAVORITE, R.string.action_favorite)
+                            .setIcon(R.drawable.favorite)
+                            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    optionsMenu.add(0, R.id.action_block, MENU_BLOCK, R.string.action_block)
+                            .setIcon(R.drawable.block)
+                            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                     optionsMenu.add(0, R.id.action_close, MENU_CLOSE, R.string.action_close)
                             .setIcon(R.drawable.close)
                             .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -121,6 +135,19 @@ public class ListSavedAds extends AppCompatActivity {
         savedAdsView.setEmptyView(findViewById(R.id.emptySaved));
 
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)  {
+        if (keyCode == KeyEvent.KEYCODE_BACK ) {
+            if(isSelected) {
+                removeSelection();
+                return true;
+            }
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         optionsMenu = menu;
@@ -130,17 +157,38 @@ public class ListSavedAds extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
-        ReceivedAd selectedAd = savedAds.getItem(selectedPosition);
-        switch (item.getItemId()) {
-            case R.id.action_clear:
-                Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/clear");
-                Toast.makeText(this, selectedAd.getTitle() + getString(R.string.clear_string),
-                        Toast.LENGTH_LONG).show();
-                savedAds.remove(selectedAd);
-                break;
-        }
 
-        removeSelection();
+        if(InternetCheck.isNetworkConnected(this)){
+
+            ReceivedAd selectedAd = savedAds.getItem(selectedPosition);
+            switch (item.getItemId()) {
+                case R.id.action_favorite:
+                    Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + selectedAd.getConsumerID() + "/business/" + selectedAd.getBusinessID() +  "/favorite");
+                    Toast.makeText(this, selectedAd.toString() + getString(R.string.favorite_string), Toast.LENGTH_LONG).show();
+                    break;
+                case R.id.action_block:
+                    Reader.update("http://fendatr.com/api/v1/preferences/consumer/" + selectedAd.getConsumerID() + "/business/" + selectedAd.getBusinessID() + "/block");
+                    Toast.makeText(this, selectedAd.toString() + getString(R.string.block_string), Toast.LENGTH_LONG).show();
+                    String businessID = selectedAd.getBusinessID();
+                    for(int i=0; i<savedAds.getCount(); i++){
+                        ReceivedAd currentAd = savedAds.getItem(i);
+                        if(businessID.equals(currentAd.getBusinessID())){
+                            savedAds.remove(currentAd);
+                            i--;
+                        }
+                    }
+                    break;
+                case R.id.action_clear:
+                    Reader.update("http://fendatr.com/api/v1/received/ad/" + selectedAd.getReceivedAdID() + "/clear");
+                    Toast.makeText(this, selectedAd.getTitle() + getString(R.string.clear_string),
+                            Toast.LENGTH_LONG).show();
+                    savedAds.remove(selectedAd);
+                    break;
+            }
+
+            removeSelection();
+
+        }
 
         return false;
     }
@@ -151,6 +199,8 @@ public class ListSavedAds extends AppCompatActivity {
         toolbar.setBackgroundColor(ContextCompat.getColor(toolbar.getContext(), R.color.colorPrimary));
         optionsMenu.removeItem(R.id.action_close);
         optionsMenu.removeItem(R.id.action_clear);
+        optionsMenu.removeItem(R.id.action_favorite);
+        optionsMenu.removeItem(R.id.action_block);
 
         if(selectedView != null)
             selectedView.setBackgroundColor(ContextCompat.getColor(selectedView.getContext(), android.R.color.transparent));

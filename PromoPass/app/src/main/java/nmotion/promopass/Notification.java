@@ -28,16 +28,20 @@ public class Notification {
     public void addBusiness(String gimbalID){
 
         String businessID = getBusinessID(gimbalID);
-        if(businessID == null) return;    // Gimbal device is not registered with PromoPass
-
-        String adID = getAdID(businessID);
-        if(adID == null) return;    // Business has not created an ad yet
+        if(businessID == null)
+            return;    // Gimbal device is not registered with PromoPass
 
         String consumerID = DeviceIdentifier.id(context);
 
-        if(receivedAdExists(adID, consumerID)) return;
+        if(isBlocked(businessID, consumerID))
+            return;
 
-        if(isBlocked(businessID, consumerID)) return;
+        String adID = getAdID(businessID);
+        if(adID == null)
+            return;    // Business has not created an ad yet
+
+        if(receivedAdExists(adID, consumerID))
+            return;
 
         Reader.insert("http://fendatr.com/api/v1/received/ad",
                 "{\"AdID\" : \"" + adID + "\", \"ConsumerID\" : \"" + consumerID + "\", \"BusinessID\" : \"" + businessID + "\"}");
@@ -76,14 +80,18 @@ public class Notification {
 
             JSONArray results = Reader.getResults("http://fendatr.com/api/v1/preferences/consumer/"+consumerID
                     +"/business/"+businessID+"/check/block");
+
+            if(results.length() == 0)
+                return false;
+
             json = results.getJSONObject(0);
             block = json.getString("IsBlocked");
-            if(block.equals("1"))
-                return true;
+            if(block.equals("0"))
+                return false;
         } catch (JSONException e) { }
 
 
-        return false;
+        return true;
     }
 
     private String getBusinessName(JSONArray businessIDs, int index){

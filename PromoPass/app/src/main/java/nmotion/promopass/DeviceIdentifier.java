@@ -28,7 +28,7 @@ public class DeviceIdentifier {
                 if (!installation.exists()) {
                     writeInstallationFile(context, installation);
                 }
-                sID = readInstallationFile(installation);
+                sID = readInstallationFile(context, installation);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -47,7 +47,7 @@ public class DeviceIdentifier {
 
      */
 
-    private static String readInstallationFile(File installation) throws IOException {
+    private static String readInstallationFile(Context context, File installation) throws IOException {
         RandomAccessFile f = new RandomAccessFile(installation, "r");
         byte[] bytes = new byte[(int) f.length()];
         f.readFully(bytes);

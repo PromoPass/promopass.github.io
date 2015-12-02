@@ -37,10 +37,12 @@ public class ReceiveSignal extends Service {
             public void onBeaconSighting(BeaconSighting beaconSighting) {
                 super.onBeaconSighting(beaconSighting);
                 String factoryID = beaconSighting.getBeacon().getIdentifier();
-                if(notification == null){
-                    notification = new Notification(self);
+                if(InternetCheck.isNetworkConnectedForService(self)){
+                    if(notification == null){
+                        notification = new Notification(self);
+                    }
+                    notification.addBusiness(factoryID);
                 }
-                notification.addBusiness(factoryID);
             }
         };
 

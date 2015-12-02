@@ -12,10 +12,22 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_list_saved_ads">ListSavedAds</string>
     <string name="emptySavedAds">No saved ads.</string>
-    <string name="title_activity_favorite_provider">FavoriteProvider</string>
-
-    <string name="hello_world">Hello world!</string>
-    <string name="title_activity_blocked_provider">BlockedProvider</string>
-    <string name="emptyBlockedList">Empty Blocked List</string>
-    <string name="emptyFavoritedList">Empty Favorites List</string>
+    <string name="title_activity_list_favorite_providers">ListFavoriteProviders</string>
+    <string name="emptyFavoritesString">No favorite businesses.</string>
+    <string name="clear_string">: This ad has been deleted.</string>
+    <string name="unfavorite_string">: This business has been removed from your favorites.</string>
+    <string name="unblock_string">: This business has been unblocked.</string>
+    <string name="saved_string">: This ad has been saved.</string>
+    <string name="block_string">: This business has been blocked.</string>
+    <string name="favorite_string">: This business has been added to favorites.</string>
+    <string name="title_activity_list_blocked_providers">ListBlockedProviders</string>
+    <string name="emptyBlockedString">No blocked businesses.</string>
+    <string name="Main_Menu">Main Menu</string>
+    <string name="Nearby_Businesses">Nearby Businesses</string>
+    <string name="Saved_Ads">Saved Ads</string>
+    <string name="Favorite_Businesses">Favorite Businesses</string>
+    <string name="Blocked_Businesses">Blocked Businesses</string>
+    <string name="title_activity_no_internet">NoInternet</string>
+    <string name="checkConnection">Check connection and try again.</string>
+    <string name="noInternet">No internet.</string>
 </resources>
